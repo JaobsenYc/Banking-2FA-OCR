@@ -22,4 +22,20 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthError(e.toString()));
     }
   }
+
+  void signUpWithEmailAndPassword(String email, String password) async {
+    emit(AuthLoading());
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      emit(Authenticated(userCredential.user!));
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError(e.message.toString()));
+    }on Exception catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
 }

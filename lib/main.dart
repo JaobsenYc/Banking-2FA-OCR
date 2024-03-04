@@ -6,9 +6,9 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/firebase_options.dart';
 import 'package:safe_transfer/home_page.dart';
-import 'package:safe_transfer/login/cubit/auth_cubit.dart';
-import 'package:safe_transfer/login/login_page.dart';
-import 'package:safe_transfer/register_page.dart';
+import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
+import 'package:safe_transfer/auth/screens/login_page.dart';
+import 'package:safe_transfer/auth/screens/register_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

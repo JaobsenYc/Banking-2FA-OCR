@@ -1,7 +1,7 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safe_transfer/login/cubit/auth_cubit.dart';
+import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
+import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
@@ -16,32 +16,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is Authenticated) {
-          Navigator.pop(context);
-          Navigator.pushReplacementNamed(context, '/home');
-        } else if (state is AuthError) {
-          Navigator.pop(context);
-          AwesomeDialog(
-            context: context,
-            dialogType: DialogType.error,
-            animType: AnimType.bottomSlide,
-            title: 'Error',
-            desc: state.message,
-            btnCancelOnPress: () {},
-            btnCancelText: 'Close',
-          ).show();
-        } else if (state is AuthLoading) {
-          showDialog(
-              context: context,
-              builder: (_) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              });
-        }
-      },
+    return AuthScaffold(
       child: Scaffold(
         body: Container(
           padding: const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0),
@@ -92,7 +67,9 @@ class LoginPage extends StatelessWidget {
                   text: 'Create Account',
                   backgroundColor: const Color(0x3304C6B3),
                   textColor: const Color(0xFF04C6B3),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/sign-up');
+                  },
                 ),
               ],
             ),
