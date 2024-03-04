@@ -4,7 +4,13 @@ import 'package:safe_transfer/widgets/custom_text_input.dart';
 import 'package:safe_transfer/widgets/password_input_widget.dart';
 
 class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+  RegisterPage({super.key});
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +35,18 @@ class RegisterPage extends StatelessWidget {
               style: TextStyle(fontSize: 15.0, color: Color(0xff999999)),
             ),
             const SizedBox(height: 25.0),
-            const CustomTextInput(hintText: 'Enter your email…',),
+             CustomTextInput(
+              hintText: 'Enter your email…',
+              controller: emailController,
+            ),
             const SizedBox(height: 8.0),
-            const PasswordInput(),
+             PasswordInput(
+              controller: passwordController,
+             ),
             const SizedBox(height: 8.0),
-            const PasswordInput(),
+             PasswordInput(
+              controller: confirmPasswordController,
+             ),
             const SizedBox(height: 10.0),
             CustomButton(
               text: 'Create Account',

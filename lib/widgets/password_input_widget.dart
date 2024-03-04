@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PasswordInput extends StatefulWidget {
-  const PasswordInput({super.key});
+  final TextEditingController controller;
+  final String? Function(String?)? validator;
+  const PasswordInput({super.key, required this.controller, this.validator});
 
   @override
   PasswordInputState createState() => PasswordInputState();
@@ -12,44 +14,34 @@ class PasswordInputState extends State<PasswordInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 49.0,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: const Color(0x0D000000),
-          width: 1.0,
+    return TextFormField(
+      validator: widget.validator,
+      controller: widget.controller,
+      obscureText: !_isPasswordVisible,
+      style: const TextStyle(fontSize: 15.0),
+      decoration: InputDecoration(
+        hintText: 'Enter your password…',
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        hintStyle: const TextStyle(color: Color(0xFF999999)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                obscureText: !_isPasswordVisible,
-                style: const TextStyle(fontSize: 15.0),
-                decoration: const InputDecoration(
-                  hintText: 'Enter your password…',
-                  hintStyle: TextStyle(color: Color(0xFF999999)),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: Icon(_isPasswordVisible
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined),
-            color: const Color(0xFFCCCCCC),
-            onPressed: () {
-              setState(() {
-                _isPasswordVisible = !_isPasswordVisible;
-              });
-            },
-          ),
-        ],
+        fillColor: Colors.white,
+        filled: true,
+        // visibility icon
+        suffixIcon: IconButton(
+          icon: Icon(_isPasswordVisible
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined),
+          color: const Color(0xFFCCCCCC),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+        ),
       ),
     );
   }

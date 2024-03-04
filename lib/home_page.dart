@@ -182,7 +182,7 @@ class QuickService extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const TransferPage()),
+                  MaterialPageRoute(builder: (context) =>  TransferPage()),
                 );
               },
               child: Container(

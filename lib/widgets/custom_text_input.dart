@@ -2,35 +2,33 @@
 import 'package:flutter/material.dart';
 
 class CustomTextInput extends StatelessWidget {
+  final TextEditingController controller;
   final String hintText;
+ final String? Function(String?)? validator;
 
-  const CustomTextInput({
+  const  CustomTextInput({
     Key? key,
     required this.hintText,
+    required this.controller,
+    this.validator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 49.0, // 总高度
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: const Color(0x0D000000),
-          width: 1.0,
+    return TextFormField(
+      validator: validator,
+      style: const TextStyle(fontSize: 15.0),
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        hintStyle: const TextStyle(color: Color(0xFF999999)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: TextField(
-          style: const TextStyle(fontSize: 15.0),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: const TextStyle(color: Color(0xFF999999)),
-            border: InputBorder.none,
-          ),
-        ),
+        fillColor: Colors.white,
+        filled: true,
       ),
     );
   }

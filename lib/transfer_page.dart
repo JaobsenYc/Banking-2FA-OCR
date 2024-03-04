@@ -6,7 +6,13 @@ import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
 
 class TransferPage extends StatelessWidget {
-  const TransferPage({super.key});
+   TransferPage({super.key});
+
+  final TextEditingController payeeFullNameController = TextEditingController();
+  final TextEditingController sortCodeController = TextEditingController();
+  final TextEditingController accountNumberController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +49,14 @@ class TransferPage extends StatelessWidget {
                     children: [
                       // 输入框
                       const SizedBox(height: 20),
-                      const CustomTextInput(hintText: 'Payee Full Name'),
-                      const SizedBox(height: 8),
-                      const CustomTextInput(hintText: 'Sort Code'),
-                      const SizedBox(height: 8),
-                      const CustomTextInput(hintText: 'Account Number'),
-                      const SizedBox(height: 8),
-                      const CustomTextInput(hintText: '£ Amount'),
-                      const SizedBox(height: 12),
+                       CustomTextInput(hintText: 'Payee Full Name', controller: payeeFullNameController),
+                       const SizedBox(height: 8),
+                       CustomTextInput(hintText: 'Sort Code', controller: sortCodeController),
+                       const SizedBox(height: 8),
+                       CustomTextInput(hintText: 'Account Number', controller: accountNumberController),
+                       const SizedBox(height: 8),
+                       CustomTextInput(hintText: '£ Amount', controller: amountController),
+                       const SizedBox(height: 12),
                       // 按钮
                       CustomButton(
                         text: 'Send Transfer',
