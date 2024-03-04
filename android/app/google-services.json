@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674531660564",
+    "project_id": "banking-0cr",
+    "storage_bucket": "banking-0cr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674531660564:android:80129dd740ac5950f62801",
+        "android_client_info": {
+          "package_name": "com.example.safe_transfer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaGiM7d5CSVGDBr3DAc0Aaim5G4SkSOWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
