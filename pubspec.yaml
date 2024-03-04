@@ -44,6 +44,9 @@ flutter:
     - family: SmileySans
       fonts:
         - asset: assets/fonts/SmileySans-Oblique.ttf
+    - family: SocialIcons
+      fonts:
+        - asset: packages/firebase_ui_auth/fonts/SocialIcons.ttf
   #        - asset: fonts/Schyler-Italic.ttf
   #          style: italic
   #   - family: Trajan Pro

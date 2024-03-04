@@ -31,8 +31,12 @@ class MyApp extends StatelessWidget {
         '/sign-in': (context) {
           return SignInScreen(
             providers: providers,
+            auth: FirebaseAuth.instance,
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) {
+                Navigator.pushReplacementNamed(context, '/home');
+              }),
+              AuthStateChangeAction<UserCreated>((context, state) {
                 Navigator.pushReplacementNamed(context, '/home');
               }),
             ],
@@ -40,6 +44,24 @@ class MyApp extends StatelessWidget {
         },
         '/home': (context) {
           return const HomePage();
+        },
+        '/profile': (context) {
+          return ProfileScreen(
+            appBar: AppBar(title: const Text('Profile')),
+            providers: [EmailAuthProvider()],
+            showDeleteConfirmationDialog: true,
+            showMFATile: true,
+            auth: FirebaseAuth.instance,
+            avatarPlaceholderColor: Colors.blue,
+            actions: [
+              SignedOutAction((context) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/sign-in', (route) => false);
+              })
+            ],
+            children: const [
+            ],
+          );
         },
       },
     );

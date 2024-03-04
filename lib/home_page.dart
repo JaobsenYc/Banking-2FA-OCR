@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/authentication_page.dart';
 import 'package:safe_transfer/transfer_page.dart';
@@ -215,7 +217,8 @@ class QuickService extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AuthenticationPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const AuthenticationPage()),
                 );
               },
               child: Container(
@@ -283,48 +286,62 @@ class UserHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ClipOval(
-          child: Container(
-            width: 64.0,
-            height: 64.0,
-            color: Colors.blue, // 替换为实际头像
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/profile');
+      },
+      child: Row(
+        children: [
+          const UserAvatar(
+            size: 64.0,
+            placeholderColor: Colors.blue,
           ),
-        ),
-        const SizedBox(width: 8.0),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Welcome, ',
-                  style: TextStyle(
-                    fontSize: 25.0,
-                    color: Colors.black,
+          const SizedBox(width: 8.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Welcome',
+                    style: TextStyle(
+                      fontSize: 25.0,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                Text(
-                  'Name',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25.0,
-                    color: Color(0xFF04C6B3),
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              'Your latest updates are below',
-              style: TextStyle(
-                fontSize: 15.0,
-                color: Color(0xFF999999),
+                  if (FirebaseAuth.instance.currentUser?.displayName != null)
+                    Row(
+                      children: [
+                        const Text(
+                          ', ',
+                          style: TextStyle(
+                            fontSize: 25.0,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          FirebaseAuth.instance.currentUser!.displayName!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25.0,
+                            color: Color(0xFF04C6B3),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
               ),
-            ),
-          ],
-        ),
-      ],
+              const Text(
+                'Your latest updates are below',
+                style: TextStyle(
+                  fontSize: 15.0,
+                  color: Color(0xFF999999),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
