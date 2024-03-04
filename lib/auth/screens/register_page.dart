@@ -23,7 +23,6 @@ class RegisterPage extends StatelessWidget {
         key: formKey,
         child: Scaffold(
           body: Container(
-            padding: const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0),
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/bg_login.png'),
@@ -31,6 +30,8 @@ class RegisterPage extends StatelessWidget {
               ),
             ),
             child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0,),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
