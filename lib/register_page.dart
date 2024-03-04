@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/widgets/CustomButton.dart';
-import 'package:safe_transfer/widgets/CustomTextInput.dart';
-import 'package:safe_transfer/widgets/PasswordInputWidget.dart';
+import 'package:safe_transfer/widgets/custom_button.dart';
+import 'package:safe_transfer/widgets/custom_text_input.dart';
+import 'package:safe_transfer/widgets/password_input_widget.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatelessWidget {
+  const RegisterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,29 +21,22 @@ class LoginPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Welcome Back',
+              'Get Started',
               style: TextStyle(fontSize: 40.0, color: Colors.black),
             ),
             const Text(
-              'Login to access your account',
+              'Create your account below',
               style: TextStyle(fontSize: 15.0, color: Color(0xff999999)),
             ),
             const SizedBox(height: 25.0),
             const CustomTextInput(hintText: 'Enter your email…',),
             const SizedBox(height: 8.0),
             const PasswordInput(),
+            const SizedBox(height: 8.0),
+            const PasswordInput(),
             const SizedBox(height: 10.0),
             CustomButton(
-              text: 'Login',
-              onPressed: () {
-                // Handle login action here, e.g., send data to server.
-              },
-            ),
-            const SizedBox(height: 8.0),
-            CustomButton(
               text: 'Create Account',
-              backgroundColor: const Color(0x3304C6B3),
-              textColor: const Color(0xFF04C6B3),
               onPressed: () {
                 // Handle login action here, e.g., send data to server.
               },

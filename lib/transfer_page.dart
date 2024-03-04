@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/TransferOrderPage.dart';
-import 'package:safe_transfer/widgets/AccountCard.dart';
-import 'package:safe_transfer/widgets/CustomAppBar.dart';
-import 'package:safe_transfer/widgets/CustomButton.dart';
-import 'package:safe_transfer/widgets/CustomTextInput.dart';
+import 'package:safe_transfer/transfer_order_page.dart';
+import 'package:safe_transfer/widgets/account_card.dart';
+import 'package:safe_transfer/widgets/custom_app_bar.dart';
+import 'package:safe_transfer/widgets/custom_button.dart';
+import 'package:safe_transfer/widgets/custom_text_input.dart';
 
 class TransferPage extends StatelessWidget {
   const TransferPage({super.key});

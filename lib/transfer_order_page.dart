@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:safe_transfer/widgets/CustomAppBar.dart';
+import 'package:safe_transfer/widgets/custom_app_bar.dart';
 
 class TransferOrderPage extends StatelessWidget {
   const TransferOrderPage({super.key});
@@ -8,7 +8,7 @@ class TransferOrderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Transfer'),
+      appBar: const CustomAppBar(title: 'Transfer'),
       body: Container(
         margin: const EdgeInsets.only(top: 20, left: 16, right: 16),
         height: 574,

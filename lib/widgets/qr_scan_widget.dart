@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_scankit/flutter_scankit.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:logger/logger.dart';
-import 'package:safe_transfer/data/TransferData.dart';
+import 'package:safe_transfer/data/transfer_data.dart';
 
 class QrScanWidget extends StatefulWidget {
   final Function(TransferData) onScanCompleted;

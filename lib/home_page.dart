@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/AuthenticationPage.dart';
-import 'package:safe_transfer/TransferPage.dart';
-import 'package:safe_transfer/widgets/AccountCard.dart';
+import 'package:safe_transfer/authentication_page.dart';
+import 'package:safe_transfer/transfer_page.dart';
+import 'package:safe_transfer/widgets/account_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -64,7 +64,6 @@ class Transaction extends StatelessWidget {
             ),
             itemCount: 4,
             itemBuilder: (context, index) {
-              // TODO: test data
               List<String> testData = ['income', 'expend', 'expend', 'expend'];
               return TransactionItem(transactionType: testData[index]);
             },

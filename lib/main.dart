@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:safe_transfer/HomePage.dart';
-import 'package:safe_transfer/LoginPage.dart';
-import 'package:safe_transfer/RegisterPage.dart';
-import 'package:safe_transfer/TransferOrderPage.dart';
-import 'package:safe_transfer/TransferPage.dart';
+import 'package:safe_transfer/home_page.dart';
 
-import 'widgets/QrScanWidget.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/data/TransferData.dart';
-import 'package:safe_transfer/widgets/CustomAppBar.dart';
-import 'package:safe_transfer/widgets/QrScanWidget.dart';
+import 'package:safe_transfer/data/transfer_data.dart';
+import 'package:safe_transfer/widgets/custom_app_bar.dart';
+import 'package:safe_transfer/widgets/qr_scan_widget.dart';
 
 class AuthenticationPage extends StatelessWidget {
   const AuthenticationPage({super.key});
