@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:safe_transfer/widgets/custom_app_bar.dart';
 
 class TransferOrderPage extends StatelessWidget {
