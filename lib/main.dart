@@ -9,6 +9,7 @@ import 'package:safe_transfer/home_page.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/auth/screens/login_page.dart';
 import 'package:safe_transfer/auth/screens/register_page.dart';
+import 'package:safe_transfer/utils/app_routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,36 +30,8 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(),
       child: MaterialApp(
-        initialRoute:
-            FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
-        routes: {
-          '/sign-up': (context) {
-            return  RegisterPage();
-          },
-          '/sign-in': (context) {
-            return  LoginPage();
-          },
-          '/home': (context) {
-            return const HomePage();
-          },
-          '/profile': (context) {
-            return ProfileScreen(
-              appBar: AppBar(title: const Text('Profile')),
-              providers: [EmailAuthProvider()],
-              showDeleteConfirmationDialog: true,
-              showMFATile: true,
-              auth: FirebaseAuth.instance,
-              avatarPlaceholderColor: Colors.blue,
-              actions: [
-                SignedOutAction((context) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/sign-in', (route) => false);
-                })
-              ],
-              children: const [],
-            );
-          },
-        },
+        initialRoute:AppRoutes.initialRoute,
+        routes: AppRoutes.routes,
       ),
     );
   }
