@@ -48,6 +48,7 @@ class TransferPage extends StatelessWidget {
                 ).show();
               }
               if (state is TransferCreated) {
+                FocusScope.of(context).requestFocus(FocusNode());
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => TransferOrderPage(
@@ -136,7 +137,7 @@ class TransferPage extends StatelessWidget {
                                                 int.tryParse(sortCodeController.text),
                                             accountNumber:
                                                 accountNumberController.text,
-                                            amount: amountController.text,
+                                            amount: double.parse(amountController.text),
                                           );
                                     }
                                   },

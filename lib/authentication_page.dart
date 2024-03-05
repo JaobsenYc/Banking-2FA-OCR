@@ -190,7 +190,7 @@ class AuthenticationResultDialog extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacementNamed('/home');
                         },
                         child: _buildIconButton(
                           buttonColor: const Color(0xFFFF5555),

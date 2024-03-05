@@ -8,7 +8,7 @@ class TransferOrderPage extends StatelessWidget {
   final String payeeFullName;
   final int sortCode;
   final String accountNumber;
-  final String amount;
+  final double amount;
 
   const TransferOrderPage(
       {super.key,

@@ -12,7 +12,7 @@ final class TransferCreated extends TransferState {
   final String payeeFullName;
   final int sortCode;
   final String accountNumber;
-  final String amount;
+  final double amount;
 
   TransferCreated({
     required this.id,

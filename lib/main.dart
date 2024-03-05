@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         initialRoute:AppRoutes.initialRoute,
         routes: AppRoutes.routes,
       ),

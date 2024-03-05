@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/authentication_page.dart';
 import 'package:safe_transfer/transfer/transfer_page.dart';
+import 'package:safe_transfer/transfer_order_page.dart';
 import 'package:safe_transfer/widgets/account_card.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,20 +14,22 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.only(left: 16.0, right: 16.0),
-        color: const Color(0xFFFAFAFA),
-        child: ListView(
-          children: const [
-            SizedBox(height: 40.0),
-            UserHeader(),
-            SizedBox(height: 24.0),
-            AccountCard(),
-            SizedBox(height: 20.0),
-            QuickService(),
-            SizedBox(height: 20.0),
-            Transaction(),
-          ],
+      body: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.only(left: 16.0, right: 16.0),
+          color: const Color(0xFFFAFAFA),
+          child:  const Column(
+            children: [
+              SizedBox(height: 40.0),
+              UserHeader(),
+              SizedBox(height: 24.0),
+              AccountCard(),
+              SizedBox(height: 20.0),
+              QuickService(),
+              SizedBox(height: 20.0),
+              Transaction(),
+            ],
+          ),
         ),
       ),
     );
@@ -38,49 +43,105 @@ class Transaction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Transaction',
-          style: TextStyle(
-              fontSize: 15.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF666666)),
-        ),
-        const SizedBox(height: 8.0),
-        Container(
-          padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Transaction',
+            style: TextStyle(
+                fontSize: 15.0,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF666666)),
           ),
-          child: ListView.separated(
-            physics: const ClampingScrollPhysics(),
-            separatorBuilder: (context, index) => const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Divider(
-                height: 1.0,
-                color: Color(0xFFF2F2F2),
+          const SizedBox(height: 8.0),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: FirestoreListView<Map<String, dynamic>>.separated(
+                shrinkWrap: true,
+                emptyBuilder: (context) => const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.money_off_csred_sharp,
+                        size: 28.0,
+                        color: Color(0xFF999999),
+                      ),
+                      SizedBox(height: 2.0),
+                      Text(
+                        'No transaction yet',
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                physics: const ClampingScrollPhysics(),
+                separatorBuilder: (context, index) => const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Divider(
+                    height: 1.0,
+                    color: Color(0xFFF2F2F2),
+                  ),
+                ),
+                query: FirebaseFirestore.instance
+                    .collection('transfers')
+                    .orderBy('createdAt', descending: true)
+                    .where(
+                      'userId',
+                      isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+                    ),
+                itemBuilder: (context, data) {
+                  return InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TransferOrderPage(
+                            accountNumber: data['accountNumber'],
+                            amount: data['amount'].toDouble(),
+                            id: data.id,
+                            payeeFullName: data['payeeFullName'],
+                            sortCode: data['sortCode'],
+                          ),
+                        ),
+                      );
+                    },
+                    child: TransactionItem(
+                      amount: data['amount'],
+                      date: DateTime.parse(data['createdAt']).toLocal(),
+                      transactionType: data['type'],
+                    ),
+                  );
+                },
               ),
             ),
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              List<String> testData = ['income', 'expend', 'expend', 'expend'];
-              return TransactionItem(transactionType: testData[index]);
-            },
-            shrinkWrap: true,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class TransactionItem extends StatelessWidget {
   final String transactionType;
+  final num amount;
+  final DateTime date;
 
-  const TransactionItem({super.key, required this.transactionType});
+  const TransactionItem(
+      {super.key,
+      required this.transactionType,
+      required this.amount,
+      required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -140,15 +201,16 @@ class TransactionItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '£ 8888.00', // 根据实际情况传入交易金额相关的文字
+                '£ $amount', // 根据实际情况传入交易金额相关的文字
                 style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w500,
                     color: textColor),
               ),
-              const Text(
-                '2024.01.01', // 根据实际情况传入交易日期相关的文字
-                style: TextStyle(fontSize: 14.0, color: Color(0xFF999999)),
+              Text(
+                '${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}', // 根据实际情况传入交易日期相关的文字
+                style:
+                    const TextStyle(fontSize: 14.0, color: Color(0xFF999999)),
               ),
             ],
           ),
@@ -180,9 +242,9 @@ class QuickService extends StatelessWidget {
             // goto TransferPage
             InkWell(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) =>  TransferPage()),
+                  MaterialPageRoute(builder: (context) => TransferPage()),
                 );
               },
               child: Container(
@@ -215,7 +277,7 @@ class QuickService extends StatelessWidget {
             // goto AuthenticationPage
             InkWell(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const AuthenticationPage()),

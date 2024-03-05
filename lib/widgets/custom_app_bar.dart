@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_sharp),
         onPressed: () {
-          Navigator.pop(context);
+          Navigator.of(context).pushReplacementNamed('/home');
         },
       ),
       toolbarHeight: 56,
