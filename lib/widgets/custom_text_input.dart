@@ -4,21 +4,24 @@ import 'package:flutter/material.dart';
 class CustomTextInput extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
+  final TextInputType? keyboardType;
  final String? Function(String?)? validator;
 
   const  CustomTextInput({
     Key? key,
     required this.hintText,
     required this.controller,
-    this.validator,
+    this.validator,  this.keyboardType,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: validator,
       style: const TextStyle(fontSize: 15.0),
       controller: controller,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),

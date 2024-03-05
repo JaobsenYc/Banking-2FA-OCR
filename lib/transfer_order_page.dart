@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:safe_transfer/widgets/custom_app_bar.dart';
 
 class TransferOrderPage extends StatelessWidget {
-  const TransferOrderPage({super.key});
+  final String id;
+  final String payeeFullName;
+  final int sortCode;
+  final String accountNumber;
+  final String amount;
+
+  const TransferOrderPage(
+      {super.key,
+      required this.id,
+      required this.payeeFullName,
+      required this.sortCode,
+      required this.accountNumber,
+      required this.amount});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +24,6 @@ class TransferOrderPage extends StatelessWidget {
       appBar: const CustomAppBar(title: 'Transfer'),
       body: Container(
         margin: const EdgeInsets.only(top: 20, left: 16, right: 16),
-        height: 574,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.0),
@@ -29,10 +41,20 @@ class TransferOrderPage extends StatelessWidget {
         // 二维码
         const SizedBox(height: 40.0),
         Center(
-          child: QrImageView(
-            data: 'https://example.com/your_qr_code_data',
-            version: QrVersions.auto,
-            size: 180.0,
+          child: SizedBox(
+            width: 250,
+            child: PrettyQrView.data(
+              data: id,
+              decoration: const PrettyQrDecoration(
+                image: PrettyQrDecorationImage(
+                  scale: .12,
+                  // TODO : Add logo of the app
+                  image: AssetImage(
+                    'assets/images/transfer.png',
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 10.0),
@@ -48,24 +70,25 @@ class TransferOrderPage extends StatelessWidget {
         const SizedBox(height: 20.0),
         Column(
           children: [
-            buildListTile('Name:', 'Danny Yang'),
+            buildListTile('Name:', payeeFullName),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
-            buildListTile('Sort code:', '12-34-56'),
+            buildListTile('Sort code:', '$sortCode'),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
-            buildListTile('Account number:', '12345678'),
+            buildListTile('Account number:', accountNumber),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
-            buildListTile2('Amount:', const Text(
-              '￡500.00',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold
-              ),
-            )),
+            buildListTile2(
+                'Amount:',
+                Text(
+                  '￡$amount',
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                )),
           ],
         ),
         const SizedBox(height: 10.0),
-        getIDCard('ID: A4D788ED'),
+        getIDCard('ID: $id'),
       ],
     );
   }
@@ -137,5 +160,4 @@ class TransferOrderPage extends StatelessWidget {
       ),
     );
   }
-
 }
