@@ -14,7 +14,8 @@ class TransferCubit extends Cubit<TransferState> {
       required String amount}) async {
     try {
       emit(TransferLoading());
-      final ref = await FirebaseFirestore.instance.collection('transfers').add({
+      final ref = await FirebaseFirestore.instance.collection('transfers')
+      .add({
         'payeeFullName': payeeFullName,
         'sortCode': sortCode,
         'accountNumber': accountNumber,
