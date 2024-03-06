@@ -11,7 +11,6 @@ import 'package:safe_transfer/widgets/custom_text_input.dart';
 
 class TransferPage extends StatelessWidget {
   TransferPage({super.key});
-
   final TextEditingController payeeFullNameController = TextEditingController();
   final TextEditingController sortCodeController = TextEditingController();
   final TextEditingController accountNumberController = TextEditingController();

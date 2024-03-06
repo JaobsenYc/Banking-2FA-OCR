@@ -47,7 +47,6 @@ class TransferOrderPage extends StatelessWidget {
               decoration: const PrettyQrDecoration(
                 image: PrettyQrDecorationImage(
                   scale: .12,
-                  // TODO : Add logo of the app
                   image: AssetImage(
                     'assets/images/transfer.png',
                   ),
@@ -138,7 +137,7 @@ class TransferOrderPage extends StatelessWidget {
 
   Widget getIDCard(String content) {
     return Container(
-      height: 64.0,
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
