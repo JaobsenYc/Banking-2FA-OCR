@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.only(left: 16.0, right: 16.0),
           color: const Color(0xFFFAFAFA),
-          child:  const Column(
+          child: const Column(
             children: [
               SizedBox(height: 40.0),
               UserHeader(),
@@ -129,7 +129,7 @@ class Transaction extends StatelessWidget {
                     child: TransactionItem(
                       amount: data['amount'],
                       date: DateTime.parse(data['createdAt']).toLocal(),
-                      transactionType: data['type'],
+                      transactionType: data['status'],
                     ),
                   );
                 },
@@ -155,19 +155,33 @@ class TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color textColor = transactionType == 'income'
-        ? const Color(0xFFFF5555)
-        : const Color(0xFF00C3B1);
-    Color iconBackgroundColor = transactionType == 'income'
-        ? const Color(0xFFFFEEEE)
-        : const Color(0xFFE5F9F7);
-    String iconPath = transactionType == 'income'
-        ? 'assets/images/income.png'
-        : 'assets/images/expend.png';
+    Color textColor = transactionType == 'initiated'
+        ? const Color.fromARGB(255, 220, 77, 29)
+        : transactionType == 'income'
+            ? const Color(0xFFFF5555)
+            : const Color(0xFF00C3B1);
+    Color iconBackgroundColor = transactionType == 'initiated'
+        ? const Color.fromARGB(255, 255, 240, 230)
+        : transactionType == 'income'
+            ? const Color(0xFFFFEEEE)
+            : const Color(0xFFE5F9F7);
+
+    // icon color 
+    Color iconColor = transactionType == 'initiated'
+        ? const Color.fromARGB(255, 220, 77, 29)
+        : transactionType == 'income'
+            ? const Color(0xFFFF5555)
+            : const Color(0xFF00C3B1);
+    String iconPath = transactionType == 'initiated'
+        ? 'assets/images/authentication.png'
+        : transactionType == 'income'
+            ? 'assets/images/income.png'
+            : 'assets/images/expend.png';
     var icon = Image.asset(
       iconPath,
       width: 32.0,
       height: 32.0,
+      color: iconColor,
     );
 
     return Container(
