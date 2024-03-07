@@ -9,9 +9,9 @@ environment:
 
 dependencies:
   awesome_dialog: ^3.2.0
-  camera: 0.10.5+9
   cloud_firestore: ^4.15.6
   cloud_functions: ^4.6.7
+  cunning_document_scanner: ^1.2.1
   cupertino_icons: ^1.0.2
   firebase_auth: ^4.17.6
   firebase_core: ^2.25.5
@@ -20,13 +20,11 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.4
-  flutter_scankit: 2.0.3
+  google_mlkit_barcode_scanning: ^0.10.0
   google_mlkit_text_recognition: 0.11.0
   intl: any
   logger: 2.0.2+1
-  pointycastle: ^3.7.4
   pretty_qr_code: ^3.2.1
-  qr_flutter: 4.1.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0

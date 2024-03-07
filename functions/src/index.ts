@@ -19,42 +19,43 @@ const secretKey = functions.config().crypto.key;
 const secretKeyForHMAC = functions.config().crypto.hmac_key;
 
 exports.encryptData = functions.https.onCall((data) => {
-  // Function to "mimic" AES-GCM encryption
   const jsonData = data;
   const iv = CryptoJS.lib.WordArray.random(128 / 8);
-  const ciphertext = CryptoJS.AES.encrypt(
+  const ciphertext = CryptoJS.AES.encrypt( // eslint-disable-line new-cap
     JSON.stringify(jsonData),
-    CryptoJS.enc.Hex.parse(secretKey), // eslint-disable-line new-cap
+    CryptoJS.enc.Hex.parse(secretKey),
     {iv: iv},
-  ).toString(); // eslint-disable-line new-cap
-  const hmac = CryptoJS.HmacSHA256( // eslint-disable-line new-cap
-    CryptoJS.lib.WordArray.random(128 / 8), // eslint-disable-line new-cap
-    CryptoJS.enc.Hex.parse(secretKeyForHMAC), // eslint-disable-line new-cap
-  ).toString(); // eslint-disable-line new-cap
-  const encryptedData = hmac + CryptoJS.enc.Hex.stringify(iv) + ciphertext;
+  ).toString();
+  // Generate HMAC using ciphertext and IV
+  const hmac = CryptoJS.HmacSHA256(ciphertext + // eslint-disable-line new-cap
+    CryptoJS.enc.Hex.stringify(iv), // eslint-disable-line new-cap
+  CryptoJS.enc.Hex.parse(secretKeyForHMAC)) // eslint-disable-line new-cap
+    .toString();
+  const encryptedData = hmac + CryptoJS.enc.Hex.stringify(iv)+
+  ciphertext; // eslint-disable-line new-cap
   return encryptedData;
 });
+
 
 exports.decryptData = functions.https.onCall((data) => {
   const hmacPlusIvPlusCiphertext = data;
   const hmac = hmacPlusIvPlusCiphertext.substr(0, 64);
   const iv = CryptoJS.enc.Hex.parse(hmacPlusIvPlusCiphertext.substr(64, 32));
   const ciphertext = hmacPlusIvPlusCiphertext.substr(96);
+  // Regenerate HMAC using ciphertext and IV for validation
   const currentHmac = CryptoJS.HmacSHA256( // eslint-disable-line new-cap
-    iv.concat(CryptoJS.enc.Base64.parse(ciphertext)),
-    CryptoJS.enc.Hex.parse(secretKeyForHMAC),
-  ).toString();
-
+    ciphertext + CryptoJS.enc.Hex.stringify(iv), // eslint-disable-line new-cap
+    CryptoJS.enc.Hex.parse(secretKeyForHMAC)) // eslint-disable-line new-cap
+    .toString();
   if (currentHmac !== hmac) {
     return "Integrity check failed";
   }
-
   const bytes = CryptoJS.AES.decrypt( // eslint-disable-line new-cap
     ciphertext,
     CryptoJS.enc.Hex.parse(secretKey), // eslint-disable-line new-cap
     {iv: iv},
   );
-  const decryptedData = JSON.parse(
-    bytes.toString(CryptoJS.enc.Utf8)); // eslint-disable-line new-cap
+  const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
   return decryptedData;
 });
+

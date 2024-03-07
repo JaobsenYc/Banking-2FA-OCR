@@ -4,6 +4,7 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/authentication_page.dart';
+import 'package:safe_transfer/data/transfer_data.dart';
 import 'package:safe_transfer/transfer/transfer_page.dart';
 import 'package:safe_transfer/transfer_order_page.dart';
 import 'package:safe_transfer/widgets/account_card.dart';
@@ -107,11 +108,20 @@ class Transaction extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => TransferOrderPage(
+                            model: TransferData(
+                              amount: data['amount'].toDouble(),
+                              name: data['payeeFullName'],
+                              sortCode: data['sortCode'],
+                              accountNumber: data['accountNumber'],
+                              id: data.id,
+                              encryptedData: data['encryptedData'],
+                            ),
+                            /* encryptedData: data,
                             accountNumber: data['accountNumber'],
                             amount: data['amount'].toDouble(),
                             id: data.id,
                             payeeFullName: data['payeeFullName'],
-                            sortCode: data['sortCode'],
+                            sortCode: data['sortCode'], */
                           ),
                         ),
                       );

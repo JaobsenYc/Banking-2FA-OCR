@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safe_transfer/data/transfer_data.dart';
 
 part 'transfer_state.dart';
 
@@ -10,25 +12,22 @@ class TransferCubit extends Cubit<TransferState> {
 
   void createTransfer(
       {required String payeeFullName,
-      required int? sortCode,
+      required String? sortCode,
       required String accountNumber,
       required double amount}) async {
     try {
       emit(TransferLoading());
 
-      final data = await _callEncryptFunction({
-        'userId': FirebaseAuth.instance.currentUser!.uid,
-        'payeeFullName': payeeFullName,
-        'sortCode': sortCode,
-        'accountNumber': accountNumber,
-        'amount': amount,
-        'status': 'initiated',
-        'type': 'expense',
-        'lastScannedDate': null,
-        'createdAt': DateTime.now().toIso8601String(),
-      });
+      final ref = FirebaseFirestore.instance.collection('transfers').doc();
 
-/*       final ref = await FirebaseFirestore.instance.collection('transfers').add({
+      final data = await _callEncryptFunction({
+        'payeeFullName': payeeFullName,
+        'sortCode': sortCode,
+        'accountNumber': accountNumber,
+        'amount': amount,
+        'id': ref.id,
+      });
+      await ref.set({
         'userId': FirebaseAuth.instance.currentUser!.uid,
         'payeeFullName': payeeFullName,
         'sortCode': sortCode,
@@ -38,13 +37,18 @@ class TransferCubit extends Cubit<TransferState> {
         'type': 'expense',
         'lastScannedDate': null,
         'createdAt': DateTime.now().toIso8601String(),
-      }); */
+        'encryptedData': data,
+      });
       emit(TransferCreated(
-        id: data,
-        payeeFullName: payeeFullName,
-        sortCode: sortCode ?? 0,
-        accountNumber: accountNumber,
-        amount: amount,
+        encryptedData: data,
+        model: TransferData(
+          amount: amount,
+          name: payeeFullName,
+          sortCode: sortCode.toString(),
+          accountNumber: accountNumber,
+          id: ref.id,
+          encryptedData: data,
+        ),
       ));
     } on FirebaseFunctionsException catch (e) {
       debugPrint("Function ${e.message}");
@@ -62,6 +66,7 @@ class TransferCubit extends Cubit<TransferState> {
     HttpsCallable callable =
         FirebaseFunctions.instance.httpsCallable('encryptData');
     final HttpsCallableResult result = await callable.call(jsonData);
+    debugPrint("====> Result data encrypted ${result.data.length}");
     return result.data;
   }
 }

@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:safe_transfer/data/transfer_data.dart';
 import 'package:safe_transfer/widgets/custom_app_bar.dart';
 
 class TransferOrderPage extends StatelessWidget {
-  final String id;
-  final String payeeFullName;
-  final int sortCode;
-  final String accountNumber;
-  final double amount;
+  final TransferData model;
 
-  const TransferOrderPage(
-      {super.key,
-      required this.id,
-      required this.payeeFullName,
-      required this.sortCode,
-      required this.accountNumber,
-      required this.amount});
+  const TransferOrderPage({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +34,11 @@ class TransferOrderPage extends StatelessWidget {
           child: SizedBox(
             width: 250,
             child: PrettyQrView.data(
-              data: id,
+              data: model.encryptedData ?? '',
               decoration: const PrettyQrDecoration(
+                shape: PrettyQrRoundedSymbol(),
                 image: PrettyQrDecorationImage(
-                  scale: .12,
+                  scale: .2,
                   image: AssetImage(
                     'assets/images/transfer.png',
                   ),
@@ -68,16 +60,16 @@ class TransferOrderPage extends StatelessWidget {
         const SizedBox(height: 20.0),
         Column(
           children: [
-            buildListTile('Name:', payeeFullName),
+            buildListTile('Name:', model.name),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
-            buildListTile('Sort code:', '$sortCode'),
+            buildListTile('Sort code:', model.sortCode),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
-            buildListTile('Account number:', accountNumber),
+            buildListTile('Account number:', model.accountNumber),
             Container(height: 1, color: const Color(0xFFF2F2F2)),
             buildListTile2(
                 'Amount:',
                 Text(
-                  '￡$amount',
+                  '￡${model.amount}',
                   style: const TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -86,7 +78,7 @@ class TransferOrderPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10.0),
-        getIDCard('ID: $id'),
+        getIDCard('ID: ${model.id}'),
       ],
     );
   }

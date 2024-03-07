@@ -51,11 +51,7 @@ class TransferPage extends StatelessWidget {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => TransferOrderPage(
-                      id: state.id,
-                      payeeFullName: state.payeeFullName,
-                      sortCode: state.sortCode,
-                      accountNumber: state.accountNumber,
-                      amount: state.amount,
+                      model: state.model
                     ),
                   ),
                 );
@@ -132,8 +128,7 @@ class TransferPage extends StatelessWidget {
                                       context.read<TransferCubit>().createTransfer(
                                             payeeFullName:
                                                 payeeFullNameController.text,
-                                            sortCode:
-                                                int.tryParse(sortCodeController.text),
+                                            sortCode: sortCodeController.text,
                                             accountNumber:
                                                 accountNumberController.text,
                                             amount: double.parse(amountController.text),

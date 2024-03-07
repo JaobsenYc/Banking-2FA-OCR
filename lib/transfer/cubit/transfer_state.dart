@@ -8,18 +8,13 @@ final class TransferInitial extends TransferState {}
 final class TransferLoading extends TransferState {}
 
 final class TransferCreated extends TransferState {
-  final String id;
-  final String payeeFullName;
-  final int sortCode;
-  final String accountNumber;
-  final double amount;
+  final TransferData model;
+  final String encryptedData;
 
   TransferCreated({
-    required this.id,
-    required this.payeeFullName,
-    required this.sortCode,
-    required this.accountNumber,
-    required this.amount,
+    required this.model,
+    required this.encryptedData,
+    
   });
 }
 

@@ -1,23 +1,156 @@
+import 'dart:io';
+
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
+import 'package:safe_transfer/utils/encrypt_service.dart';
 import 'package:safe_transfer/widgets/custom_app_bar.dart';
-import 'package:safe_transfer/widgets/qr_scan_widget.dart';
 
-class AuthenticationPage extends StatelessWidget {
+class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
+
+  @override
+  State<AuthenticationPage> createState() => _AuthenticationPageState();
+}
+
+class _AuthenticationPageState extends State<AuthenticationPage> {
+  List<String> _pictures = [];
+
+  bool isScanning = false;
+
+  void _getDocument() async {
+    try {
+      setState(() {
+        isScanning = true;
+      });
+      final pictures = await CunningDocumentScanner.getPictures(
+        noOfPages: 1,
+        isGalleryImportAllowed: true,
+      );
+      if (!mounted) return;
+      if (pictures?.isEmpty == true || pictures == null) {
+        setState(() {
+          isScanning = false;
+        });
+        return;
+      }
+      setState(() {
+        _pictures = pictures;
+      });
+      ImageDetectionService.detectQrCodeFromImage(File(_pictures.first));
+    } catch (exception) {
+      debugPrint('Exception: $exception');
+    }
+    setState(() {
+      isScanning = false;
+    });
+  }
+
+
+
+  @override
+  initState() {
+    super.initState();
+    _getDocument();
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Authentication',),
-      body: QrScanWidget(onScanCompleted: (data) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AuthenticationResultDialog(transferData: data,);
-          },
-        );
-      },),
+      appBar: const CustomAppBar(
+        title: 'Authentication',
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (_pictures.isEmpty)
+            Column(
+              children: [
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    'No document scanned',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _getDocument,
+                  child: const Text('Scan'),
+                ),
+              ],
+            ),
+          if (_pictures.isNotEmpty)
+            // just the first picture
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _getDocument,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              fixedSize: const Size(double.infinity, 40),
+                              foregroundColor: Colors.white,
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                            ),
+                            child: const Text('Change Document'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // rescan button
+                        ElevatedButton(
+                          onPressed: () {
+                           final data =  ImageDetectionService.extractDataFromImage(
+                                File(_pictures.first));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00C3B1),
+                            foregroundColor: Colors.white,
+                            fixedSize: const Size(100, 40),
+                            padding: EdgeInsets.zero,
+                            alignment: Alignment.center,
+                            textStyle: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                          child: const Text('Resecan ↻'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: Image.file(
+                        width: double.infinity,
+                        File(_pictures.first),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -96,7 +229,7 @@ class AuthenticationResultDialog extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        transferData.amount,
+                        transferData.amount.toStringAsFixed(2),
                         style: amountTextStyle,
                       ),
                     ],
@@ -146,7 +279,6 @@ class AuthenticationResultDialog extends StatelessWidget {
                           ],
                         ),
                       ),
-
                     ],
                   ),
 
@@ -229,7 +361,8 @@ class AuthenticationResultDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton({required Color buttonColor, required String iconPath}) {
+  Widget _buildIconButton(
+      {required Color buttonColor, required String iconPath}) {
     return Container(
       width: 80,
       height: 80,
@@ -248,4 +381,3 @@ class AuthenticationResultDialog extends StatelessWidget {
     );
   }
 }
-
