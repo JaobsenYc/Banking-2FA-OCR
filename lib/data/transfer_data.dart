@@ -18,7 +18,7 @@ class TransferData {
   // from json
   factory TransferData.fromJson(Map<String, dynamic> json) {
     return TransferData(
-      amount: json['amount'],
+      amount: json['amount'].toDouble(),
       name: json['payeeFullName'],
       sortCode: json['sortCode'],
       accountNumber: json['accountNumber'],

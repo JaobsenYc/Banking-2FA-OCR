@@ -102,7 +102,7 @@ class TransferPage extends StatelessWidget {
                                 CustomTextInput(
                                   hintText: 'Sort Code',
                                   controller: sortCodeController,
-                                  validator: ValidatorService.validateNumber,
+                                  validator: ValidatorService.validateSortCode,
                                   keyboardType: TextInputType.number,
                                 ),
                                 const SizedBox(height: 8),

@@ -18,6 +18,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   bool isScanning = false;
 
+  bool? isDataMatching;
+
   void _getDocument() async {
     try {
       setState(() {
@@ -34,10 +36,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         });
         return;
       }
+      isDataMatching =
+          await ImageDetectionService.isDataMatching(File(pictures.first));
       setState(() {
         _pictures = pictures;
       });
-      ImageDetectionService.detectQrCodeFromImage(File(_pictures.first));
     } catch (exception) {
       debugPrint('Exception: $exception');
     }
@@ -45,8 +48,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       isScanning = false;
     });
   }
-
-
 
   @override
   initState() {
@@ -65,90 +66,132 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       appBar: const CustomAppBar(
         title: 'Authentication',
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: [
-          if (_pictures.isEmpty)
-            Column(
-              children: [
-                const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    'No document scanned',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _getDocument,
-                  child: const Text('Scan'),
-                ),
-              ],
-            ),
-          if (_pictures.isNotEmpty)
-            // just the first picture
-            Expanded(
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_pictures.isEmpty)
+                Column(
                   children: [
                     const SizedBox(height: 20),
-                    Row(
+                    const Center(
+                      child: Text(
+                        'No document scanned',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _getDocument,
+                      child: const Text('Scan'),
+                    ),
+                  ],
+                ),
+              if (_pictures.isNotEmpty)
+                // just the first picture
+                Expanded(
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _getDocument,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              fixedSize: const Size(double.infinity, 40),
-                              foregroundColor: Colors.white,
-                              textStyle: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.white,
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _getDocument,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  fixedSize: const Size(double.infinity, 40),
+                                  foregroundColor: Colors.white,
+                                  textStyle: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: const Text('Change Document'),
                               ),
                             ),
-                            child: const Text('Change Document'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        // rescan button
-                        ElevatedButton(
-                          onPressed: () {
-                           final data =  ImageDetectionService.extractDataFromImage(
-                                File(_pictures.first));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00C3B1),
-                            foregroundColor: Colors.white,
-                            fixedSize: const Size(100, 40),
-                            padding: EdgeInsets.zero,
-                            alignment: Alignment.center,
-                            textStyle: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.white,
+                            const SizedBox(width: 10),
+                            // rescan button
+                            ElevatedButton(
+                              onPressed: () async {
+                                isDataMatching =
+                                    await ImageDetectionService.isDataMatching(
+                                        File(_pictures.first));
+                                setState(() {});
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00C3B1),
+                                foregroundColor: Colors.white,
+                                fixedSize: const Size(100, 40),
+                                padding: EdgeInsets.zero,
+                                alignment: Alignment.center,
+                                textStyle: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: const Text('Resecan ↻'),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: Image.file(
+                            width: double.infinity,
+                            File(_pictures.first),
+                            fit: BoxFit.cover,
                           ),
-                          child: const Text('Resecan ↻'),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: Image.file(
-                        width: double.infinity,
-                        File(_pictures.first),
-                        fit: BoxFit.cover,
+                  ),
+                ),
+              if (isDataMatching == true)
+                Row(
+                  children: [
+                    // confirm transfer
+                    // cancel transfer
+                    IconButton(
+                      onPressed: () {
+                        // cancel transfer
+                      },
+                      icon: const Icon(Icons.cancel),
+                      iconSize: 45,
+                      color: Colors.red,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Transfer Data Matching',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // confirm transfer
+                      },
+                      iconSize: 45,
+                      color: Colors.green,
+                      icon: const Icon(
+                        Icons.check,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
+            ],
+          ),
         ],
       ),
     );

@@ -7,8 +7,32 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:safe_transfer/data/transfer_data.dart';
 
 class ImageDetectionService {
+  static Future<Map<String, dynamic>?> _callDecryptFunction(
+      String? data) async {
+    HttpsCallable callable =
+        FirebaseFunctions.instance.httpsCallable('decryptData');
+    final HttpsCallableResult result = await callable.call(data);
+    return result.data;
+  }
+
+
+  // this function  check if the data from the 2 functions is matching
+  static Future<bool> isDataMatching(File image) async {
+      final qrData = await _detectQrCodeFromImage(image);
+      final textData = await _extractDataFromImage(image);
+      if (qrData == null || textData == null) {
+        return false;
+      }
+      bool sameName = qrData.name == textData.name;
+      bool sameAmount = qrData.amount == textData.amount;
+      bool sameAccountNumber = qrData.accountNumber == textData.accountNumber;
+      bool sameSortCode = qrData.sortCode == textData.sortCode;
+      bool sameID = qrData.id == textData.id;
+      return sameName && sameAmount && sameAccountNumber && sameSortCode && sameID;
+  }
+
   // this function  will have an image and will detetct qr code from it and return the qr code string
-  static Future<TransferData?> detectQrCodeFromImage(File image) async {
+  static Future<TransferData?> _detectQrCodeFromImage(File image) async {
     try {
       final inputImage = InputImage.fromFile(image);
       final List<BarcodeFormat> formats = [BarcodeFormat.qrCode];
@@ -30,95 +54,77 @@ class ImageDetectionService {
     }
   }
 
+  static Future<TransferData?> _extractDataFromImage(File image) async {
+    try {
+      final inputImage = InputImage.fromFile(image);
+      final textRecognizer = TextRecognizer(
+        script: TextRecognitionScript.latin,
+      );
+      final RecognizedText recognizedText = await textRecognizer.processImage(
+        inputImage,
+      );
 
+      String? amount;
+      String? accountNumber;
+      String? sortCode;
+      String? name;
+      String? id;
 
+      debugPrint("====> Result data from image  ${recognizedText.text}");
 
+      for (TextBlock block in recognizedText.blocks) {
+        for (TextLine line in block.lines) {
+          final text = line.text;
 
-static Future<TransferData?> extractDataFromImage(File image) async {
-  try {
-    final inputImage = InputImage.fromFile(image);
-    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-    final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
-
-    String? amount;
-    String? accountNumber;
-    String? sortCode;
-    String? name;
-    String? id;
-
-    for (TextBlock block in recognizedText.blocks) {
-      for (TextLine line in block.lines) {
-        // Check for Amount
-        if (line.text.contains('Name')) {
-          name = extractName(line.text);
-        }
-        else if (line.text.contains('Amount')) {
-          amount = extractAmount(line.text);
-        }
-        // Check for Account Number
-        else if (line.text.contains('Account number')) {
-          accountNumber = extractAccountNumber(line.text);
-        }
-        // Check for Sort Code
-        else if (line.text.contains('Sort code')) {
-          sortCode = extractSortCode(line.text);
-        }
-        // Check for ID
-        else if (line.text.contains('ID')) {
-          id = extractID(line.text);
+          if (!text.contains(':')) {
+            // check if the text is a pure number and must be at least 8 digits
+            if (RegExp(r'^\d{8,}$').hasMatch(text)) {
+              accountNumber = text;
+            }
+            // check if the text is a sort code like this 12-34-56 or infinty of 12-34-56....
+            else if (RegExp(r'^\d{2}-\d{2}-\d{2}$').hasMatch(text)) {
+              sortCode = text;
+            }
+            // check if the text containe 4 characters max + number like exaample $1223232323 or MAD1212 ext or 4 characters max + space + number
+            else if (RegExp(r'([£$€¥]\d+(?:\.\d{1,2})?)').hasMatch(text)) {
+              // remove the currency symbol
+              amount = text.replaceAll(RegExp(r'[£$€¥]'), '');
+            }
+            // check if is a name
+            else if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) {
+              name = text;
+            }
+            // check if is an id is like firestore document id
+            else if (RegExp(r'^[a-zA-Z0-9]{20}$').hasMatch(text)) {
+              id = text;
+            }
+          }else if(text.startsWith('ID:')){
+            // remove the ID: from the text
+            id = text.replaceAll('ID:', '');
+            // remove any space
+            id = id.replaceAll(' ', '');
+          }
         }
       }
+      return TransferData(
+        amount: double.tryParse("$amount") ?? 0,
+        name: name ?? '',
+        sortCode: sortCode ?? '',
+        accountNumber: accountNumber ?? '',
+        id: id ?? '',
+      );
+    } catch (e) {
+      debugPrint("Error in extracting data from image $e");
+      return null;
     }
-
-    return TransferData(amount: double.tryParse("$amount") ??0, name: name ?? '', sortCode: sortCode ??'', accountNumber: accountNumber ??'', id: id ??'',);
-  } catch (e) {
-    debugPrint("Error in extracting data from image $e");
-    return null;
   }
-}
-
-static  String extractAmount(String text) {
-  RegExp regExp = RegExp(r'Amount:\s*£?(\d+(?:\.\d+)?)');
-  Match? match = regExp.firstMatch(text);
-  return match?.group(1) ?? '';
-}
-
-static String extractAccountNumber(String text) {
-  RegExp regExp = RegExp(r'Account number:\s*(\d+)');
-  Match? match = regExp.firstMatch(text);
-  return match?.group(1) ?? '';
-}
-
-
-// code always have this format someNubers-someNumbers-someNumbers....
-static String extractSortCode(String text) {
-  RegExp regExp = RegExp(r'Sort code:\s*(\d{2}-\d{2}-\d{2})');
-  Match? match = regExp.firstMatch(text);
-  return match?.group(1) ?? '';
-}
-
-static String extractID(String text) {
-  RegExp regExp = RegExp(r'ID:\s*([a-zA-Z0-9]+)');
-  Match? match = regExp.firstMatch(text);
-  return match?.group(1) ?? '';
-}
-
-// name not contain any special character or number and must be at least 3 characters long
-static String extractName(String text) {
-  RegExp regExp = RegExp(r'Name:\s*([a-zA-Z]+)');
-  Match? match = regExp.firstMatch(text);
-  return match?.group(1) ?? '';
-}
 
 
 
-
-  static Future<Map<String,dynamic>?> _callDecryptFunction(String? data) async {
+  static Future<Map<String, dynamic>?> callDecryptFunction(String? data) async {
     HttpsCallable callable =
         FirebaseFunctions.instance.httpsCallable('decryptData');
     final HttpsCallableResult result = await callable.call(data);
     return result.data;
   }
 }
-
-

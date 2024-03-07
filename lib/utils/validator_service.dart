@@ -34,6 +34,18 @@ class ValidatorService{
     return null;
   }
 
+  // validate sort code must be like 12-34-56
+  static String? validateSortCode(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Sort code is required';
+    }
+    if (!RegExp(r'^\d{2}-\d{2}-\d{2}$').hasMatch(value)) {
+      return 'Sort code must be like 12-34-56';
+    }
+    return null;
+  }
+
+
   // validate full name must be at least 3 characters long and contain no numbers and special characters except space
   static String? validateName(String? value) {
     if (value == null || value.isEmpty) {
