@@ -36,11 +36,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         });
         return;
       }
-      isDataMatching =
-          await ImageDetectionService.isDataMatching(File(pictures.first));
       setState(() {
         _pictures = pictures;
       });
+      _checker();
     } catch (exception) {
       debugPrint('Exception: $exception');
     }
@@ -60,6 +59,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     super.dispose();
   }
 
+  _checker() async {
+    final res =
+        await ImageDetectionService.isDataMatching(File(_pictures.first));
+
+    if (res['data'] != null) {
+      final data = res['data'] as TransferData;
+      showModalBottomSheet(
+        isDismissible: false,
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder: (context) {
+          return BottomInfoDialog(
+            scannedData: data,
+            onRescan: _getDocument,
+            onConfirm: () {
+              // confirm transfer
+            },
+            onCancel: () {
+              // cancel transfer
+            },
+          );
+        },
+      );
+      return;
+    }
+
+    if (res['error'] != null) {
+      showModalBottomSheet(
+        isDismissible: false,
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder: (context) {
+          return FailedToMatchDataDialog(
+            fieldsNotMatching: List<String>.from(res['notMatchingList'] ?? []),
+            onRescan: _getDocument,
+          );
+        },
+      );
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,27 +112,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (_pictures.isEmpty)
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    const Center(
-                      child: Text(
-                        'No document scanned',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _getDocument,
-                      child: const Text('Scan'),
-                    ),
-                  ],
-                ),
               if (_pictures.isNotEmpty)
                 // just the first picture
                 Expanded(
@@ -122,10 +142,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             // rescan button
                             ElevatedButton(
                               onPressed: () async {
-                                isDataMatching =
-                                    await ImageDetectionService.isDataMatching(
-                                        File(_pictures.first));
-                                setState(() {});
+                                _checker();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF00C3B1),
@@ -421,6 +438,259 @@ class AuthenticationResultDialog extends StatelessWidget {
           color: Colors.white,
         ),
       ),
+    );
+  }
+}
+
+class BottomInfoDialog extends StatelessWidget {
+  final TransferData scannedData;
+  final void Function()? onRescan;
+  final void Function()? onConfirm;
+  final void Function()? onCancel;
+  const BottomInfoDialog(
+      {super.key,
+      required this.scannedData,
+      this.onRescan,
+      this.onConfirm,
+      this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomSheet(
+      onClosing: () {},
+      builder: (context) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Scanned Information',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 10),
+              DataInfo(
+                subTitle: 'Amount',
+                title: '£${scannedData.amount.toStringAsFixed(2)}',
+                titleFontSize: 35,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  DataInfo(
+                    subTitle: 'Name',
+                    title: scannedData.name,
+                  ),
+                  DataInfo(
+                    subTitle: 'Sort Code',
+                    title: scannedData.sortCode,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              DataInfo(
+                subTitle: 'Account Number',
+                title: scannedData.accountNumber,
+              ),
+              const SizedBox(height: 20),
+              DataInfo(
+                subTitle: 'ID',
+                title: scannedData.id,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  DataIcon(
+                    icon: Icons.close,
+                    color: const Color(0xFFFF5555),
+                    onTap: () {
+                      onCancel?.call();
+                    },
+                  ),
+                  const Expanded(child: SizedBox()),
+                  DataIcon(
+                    icon: Icons.refresh_outlined,
+                    color: Colors.black,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      onRescan?.call();
+                    },
+                  ),
+                  const Expanded(child: SizedBox()),
+                  DataIcon(
+                    icon: Icons.check,
+                    color: const Color(0xFF00C3B1),
+                    onTap: () {
+                      onConfirm?.call();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class DataIcon extends StatelessWidget {
+  final void Function()? onTap;
+  final IconData icon;
+  final Color color;
+  const DataIcon(
+      {super.key, this.onTap, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: (){
+
+        onTap?.call();
+      },
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        child: Center(
+          child: Icon(
+            icon,
+            size: 20,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DataInfo extends StatelessWidget {
+  final String title;
+  final String subTitle;
+  final double titleFontSize;
+  const DataInfo(
+      {super.key,
+      required this.title,
+      required this.subTitle,
+      this.titleFontSize = 20});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: titleFontSize,
+            color: const Color(0xFF00C3B1),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 1),
+        Text(
+          subTitle,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF999999),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// failured to match the data bottom sheet dialog
+class FailedToMatchDataDialog extends StatelessWidget {
+  final List<String> fieldsNotMatching;
+  final void Function()? onRescan;
+  const FailedToMatchDataDialog(
+      {super.key, required this.fieldsNotMatching, this.onRescan});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomSheet(
+      onClosing: () {},
+      builder: (context) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Failed to Match Data',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 20),
+              const Text(
+                'The scanned data does not match the data in the system.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF999999),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Fields Not Matching',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF999999),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: fieldsNotMatching
+                    .map((field) => Chip(
+                          label: Text(
+                            field,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          backgroundColor: const Color(0xFFFF5555),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  DataIcon(
+                    icon: Icons.refresh_outlined,
+                    color: Colors.black,
+                    onTap: () {
+                                            Navigator.of(context).pop();
+
+                      onRescan?.call();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

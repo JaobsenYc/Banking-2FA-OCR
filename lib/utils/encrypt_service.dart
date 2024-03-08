@@ -15,20 +15,63 @@ class ImageDetectionService {
     return result.data;
   }
 
-
   // this function  check if the data from the 2 functions is matching
-  static Future<bool> isDataMatching(File image) async {
-      final qrData = await _detectQrCodeFromImage(image);
-      final textData = await _extractDataFromImage(image);
-      if (qrData == null || textData == null) {
-        return false;
-      }
-      bool sameName = qrData.name == textData.name;
-      bool sameAmount = qrData.amount == textData.amount;
-      bool sameAccountNumber = qrData.accountNumber == textData.accountNumber;
-      bool sameSortCode = qrData.sortCode == textData.sortCode;
-      bool sameID = qrData.id == textData.id;
-      return sameName && sameAmount && sameAccountNumber && sameSortCode && sameID;
+  static Future<Map<String, dynamic>> isDataMatching(File image) async {
+    Map<String, dynamic> result ={};
+    final qrData = await _detectQrCodeFromImage(image);
+    final textData = await _extractDataFromImage(image);
+    if (qrData == null || textData == null) {
+      result['error'] = "No data found in the image";
+      return result;
+    }
+    bool sameName = qrData.name == textData.name;
+    bool sameAmount = qrData.amount == textData.amount;
+    bool sameAccountNumber = qrData.accountNumber == textData.accountNumber;
+    bool sameSortCode = qrData.sortCode == textData.sortCode;
+    bool sameID = qrData.id == textData.id;
+
+    if (sameName &&
+        sameAmount &&
+        sameAccountNumber &&
+        sameSortCode &&
+        sameID) {
+      result['data'] = qrData;
+      return result;
+    }
+
+    result['error'] = "Data not matching";
+    // set fields that are not matching in the result
+    if (!sameName) {
+      result['notMatchingList'] = [
+        ...result['notMatchingList'] ?? [],
+        "Name"
+      ];
+    }
+    if (!sameAmount) {
+      result['notMatchingList'] = [
+        ...result['notMatchingList'] ?? [],
+        "Amount"
+      ];
+    }
+    if (!sameAccountNumber) {
+      result['notMatchingList'] = [
+        ...result['notMatchingList'] ?? [],
+        "Account Number"
+      ];
+    }
+    if (!sameSortCode) {
+      result['notMatchingList'] = [
+        ...result['notMatchingList'] ?? [],
+        "Sort Code"
+      ];
+    }
+    if (!sameID) {
+      result['notMatchingList'] = [
+        ...result['notMatchingList'] ?? [],
+        "ID"
+      ];
+    }
+    return result;
   }
 
   // this function  will have an image and will detetct qr code from it and return the qr code string
@@ -84,11 +127,12 @@ class ImageDetectionService {
             // check if the text is a sort code like this 12-34-56 or infinty of 12-34-56....
             else if (RegExp(r'^\d{2}-\d{2}-\d{2}$').hasMatch(text)) {
               sortCode = text;
-            }
-            // check if the text containe 4 characters max + number like exaample $1223232323 or MAD1212 ext or 4 characters max + space + number
-            else if (RegExp(r'([£$€¥]\d+(?:\.\d{1,2})?)').hasMatch(text)) {
-              // remove the currency symbol
-              amount = text.replaceAll(RegExp(r'[£$€¥]'), '');
+            } else if (RegExp(r'^[A-Z]{3,}\s*\d+(?:[.,]\d+)?|(?:\£|\$)\s*\d+(?:[.,]\d+)?$')
+                .hasMatch(text)) {
+              // remove all the currency symbols and spaces
+              String cleanedNumber =
+                  text.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.');
+              amount = cleanedNumber;
             }
             // check if is a name
             else if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) {
@@ -98,7 +142,7 @@ class ImageDetectionService {
             else if (RegExp(r'^[a-zA-Z0-9]{20}$').hasMatch(text)) {
               id = text;
             }
-          }else if(text.startsWith('ID:')){
+          } else if (text.startsWith('ID:')) {
             // remove the ID: from the text
             id = text.replaceAll('ID:', '');
             // remove any space
@@ -118,8 +162,6 @@ class ImageDetectionService {
       return null;
     }
   }
-
-
 
   static Future<Map<String, dynamic>?> callDecryptFunction(String? data) async {
     HttpsCallable callable =
