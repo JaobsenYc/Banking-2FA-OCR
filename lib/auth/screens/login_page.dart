@@ -6,6 +6,7 @@ import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
 import 'package:safe_transfer/widgets/password_input_widget.dart';
+import 'package:safe_transfer/widgets/primary_device_switch.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -45,12 +46,20 @@ class LoginPage extends StatelessWidget {
                   controller: emailController,
                   validator: ValidatorService.emailValidator,
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: 10.0),
                 PasswordInput(
                   controller: passwordController,
                   validator: ValidatorService.passwordValidator,
                 ),
                 const SizedBox(height: 10.0),
+                  PrimaryDeviceSwitch(
+                    initialIsPrimary: true,
+                  showTextInfos: false,
+                  onChanged: (value) {
+                    context.read<AuthCubit>().isPrimaryDevice = value;
+                  },
+                ),
+                const SizedBox(height: 20.0),
                 CustomButton(
                   text: 'Login',
                   onPressed: () {

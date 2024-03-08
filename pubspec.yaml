@@ -13,6 +13,7 @@ dependencies:
   cloud_functions: ^4.6.7
   cunning_document_scanner: ^1.2.1
   cupertino_icons: ^1.0.2
+  device_info_plus: ^9.1.2
   firebase_auth: ^4.17.6
   firebase_core: ^2.25.5
   firebase_ui_auth: ^1.13.1

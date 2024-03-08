@@ -3,9 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/authentication_page.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
-import 'package:safe_transfer/transfer/transfer_page.dart';
+import 'package:safe_transfer/quick_service.dart';
 import 'package:safe_transfer/transfer_order_page.dart';
 import 'package:safe_transfer/widgets/account_card.dart';
 
@@ -244,128 +243,7 @@ class TransactionItem extends StatelessWidget {
   }
 }
 
-class QuickService extends StatelessWidget {
-  const QuickService({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Quick Service',
-          style: TextStyle(
-              fontSize: 15.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF666666)),
-        ),
-        const SizedBox(height: 8.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // goto TransferPage
-            InkWell(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => TransferPage()),
-                );
-              },
-              child: Container(
-                width: 88.0,
-                height: 93.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/transfer.png',
-                      width: 40,
-                      height: 40,
-                    ),
-                    const SizedBox(height: 4.0),
-                    const Text(
-                      'Transfer',
-                      style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF04C6B3)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // goto AuthenticationPage
-            InkWell(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AuthenticationPage()),
-                );
-              },
-              child: Container(
-                width: 140.0,
-                height: 93.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/authentication.png',
-                      width: 40,
-                      height: 40,
-                    ),
-                    const SizedBox(height: 4.0),
-                    const Text(
-                      'Authentication',
-                      style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF04C6B3)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              width: 88.0,
-              height: 93.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/my_bank.png',
-                    width: 40,
-                    height: 40,
-                  ),
-                  const SizedBox(height: 4.0),
-                  const Text(
-                    'My Bank',
-                    style: TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF04C6B3)),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
 
 class UserHeader extends StatelessWidget {
   const UserHeader({super.key});

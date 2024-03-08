@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_transfer/auth/screens/login_page.dart';
 import 'package:safe_transfer/auth/screens/register_page.dart';
 import 'package:safe_transfer/home_page.dart';
+import 'package:safe_transfer/widgets/primary_device_switch.dart';
 
 class AppRoutes {
   static const String home = '/home';
@@ -33,11 +34,16 @@ class AppRoutes {
         auth: FirebaseAuth.instance,
         avatarPlaceholderColor: Colors.blue,
         actions: [
-          SignedOutAction((context) {
-            Navigator.pushNamedAndRemoveUntil(context, login, (route) => false);
-          })
+          SignedOutAction(
+            (context) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, login, (route) => false);
+            },
+          )
         ],
-        children: const [],
+        children: const [
+          PrimaryDeviceSwitch(),
+        ],
       );
     },
   };
