@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
+import 'package:safe_transfer/utils/app_routes.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
@@ -19,6 +20,17 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
+      onAuthSuccess: () {
+        // show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account created successfully! Please login.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // navigate to login page
+        Navigator.pushNamed(context, AppRoutes.login);
+      },
       child: Form(
         key: formKey,
         child: Scaffold(
@@ -30,8 +42,11 @@ class RegisterPage extends StatelessWidget {
               ),
             ),
             child: SingleChildScrollView(
-                            padding: const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0,),
-
+              padding: const EdgeInsets.only(
+                top: 160.0,
+                left: 32.0,
+                right: 32.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

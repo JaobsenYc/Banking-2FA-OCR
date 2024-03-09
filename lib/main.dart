@@ -11,7 +11,7 @@ late final AppDeviceInfo deviceInfo;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    deviceInfo = AppDeviceInfo();
+  deviceInfo = AppDeviceInfo();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }

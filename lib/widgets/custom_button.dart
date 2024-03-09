@@ -6,6 +6,7 @@ class CustomButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final String text;
+  final double? width;
   final VoidCallback onPressed;
 
   const CustomButton({
@@ -15,6 +16,7 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor = const Color(0xFF04C6B3),
     this.textColor = Colors.white,
     required this.text,
+    this.width,
     required this.onPressed,
   }) : super(key: key);
 
@@ -22,6 +24,7 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
+      constraints: BoxConstraints(maxWidth: width ?? double.infinity),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),

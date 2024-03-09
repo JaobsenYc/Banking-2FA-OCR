@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:safe_transfer/auth/device_type/device_type_page.dart';
 import 'package:safe_transfer/auth/screens/login_page.dart';
 import 'package:safe_transfer/auth/screens/register_page.dart';
 import 'package:safe_transfer/home_page.dart';
@@ -11,6 +12,7 @@ class AppRoutes {
   static const String login = '/sign-in';
   static const String register = '/sign-up';
   static const String profile = '/profile';
+  static const String deviceType = '/device-type';
 
   static String initialRoute =
       FirebaseAuth.instance.currentUser == null ? login : home;
@@ -24,6 +26,9 @@ class AppRoutes {
     },
     home: (context) {
       return const HomePage();
+    },
+    deviceType: (context) {
+      return const DeviceTypePage();
     },
     profile: (context) {
       return ProfileScreen(

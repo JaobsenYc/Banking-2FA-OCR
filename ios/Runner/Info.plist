@@ -49,5 +49,7 @@
     <string>Camera is required for scanning QR code</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library is required for selecting images</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is required for scanning QR code</string>
 </dict>
 </plist>

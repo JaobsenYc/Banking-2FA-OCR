@@ -26,6 +26,7 @@ class _PrimaryDeviceSwitchState extends State<PrimaryDeviceSwitch> {
 
   Future<void> _fetchData() async {
     try {
+      await Future.delayed(const Duration(seconds: 1));
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
@@ -57,18 +58,29 @@ class _PrimaryDeviceSwitchState extends State<PrimaryDeviceSwitch> {
       final snapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
+        final Map<Object, Object?> deviceIDsInfo = {};
+
+        if( value ){
+          deviceIDsInfo['primaryDeviceId'] = deviceInfo.deviceId;
+          deviceIDsInfo['secondaryDeviceId'] = snapshot.exists ? snapshot.data()!['primaryDeviceId'] : null;
+        }else {
+          deviceIDsInfo['primaryDeviceId'] = snapshot.exists ? snapshot.data()!['secondaryDeviceId'] : null;
+          deviceIDsInfo['secondaryDeviceId'] = deviceInfo.deviceId;
+        }
+
       if (!snapshot.exists) {
         final doc = FirebaseFirestore.instance.collection('users').doc(uid);
         doc.set({
           'uid': uid,
-          'primaryDeviceId': deviceInfo.deviceId,
+          'primaryDeviceId': deviceIDsInfo['primaryDeviceId'],
+          'secondaryDeviceId': deviceIDsInfo['secondaryDeviceId'],
         });
       } else {
         final docId = snapshot.id;
         await FirebaseFirestore.instance
             .collection('users')
             .doc(docId)
-            .update({'primaryDeviceId': deviceInfo.deviceId});
+            .update(deviceIDsInfo);
       }
       setState(() {
         _isPrimary = value;

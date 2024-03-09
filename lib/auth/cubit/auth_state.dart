@@ -34,3 +34,8 @@ final class AuthSignedOutLoading extends AuthState {}
 final class AuthSignedOutSuccess extends AuthState {}
 
 final class AuthSignedOutUnauthenticated extends AuthState {}
+
+final class FirstTimeLogin extends AuthState {}
+
+
+final class AlreadyAuthenticated extends AuthState {}

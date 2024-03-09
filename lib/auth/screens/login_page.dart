@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
+import 'package:safe_transfer/utils/app_routes.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
 import 'package:safe_transfer/widgets/password_input_widget.dart';
-import 'package:safe_transfer/widgets/primary_device_switch.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -17,10 +17,16 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authCubit = context.read<AuthCubit>();
     return AuthScaffold(
+      onAuthSuccess: () {
+        authCubit.checkFirstTimeLogin();
+      },
+      onFirstTimeLogin: () {
+        Navigator.pushReplacementNamed(context, AppRoutes.deviceType);
+      },
       child: Scaffold(
         body: Container(
-          padding: const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0),
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/bg_login.png'),
@@ -29,58 +35,54 @@ class LoginPage extends StatelessWidget {
           ),
           child: Form(
             key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Welcome Back',
-                  style: TextStyle(fontSize: 40.0, color: Colors.black),
-                ),
-                const Text(
-                  'Login to access your account',
-                  style: TextStyle(fontSize: 15.0, color: Color(0xff999999)),
-                ),
-                const SizedBox(height: 25.0),
-                CustomTextInput(
-                  hintText: 'Enter your email…',
-                  controller: emailController,
-                  validator: ValidatorService.emailValidator,
-                ),
-                const SizedBox(height: 10.0),
-                PasswordInput(
-                  controller: passwordController,
-                  validator: ValidatorService.passwordValidator,
-                ),
-                const SizedBox(height: 10.0),
-                  PrimaryDeviceSwitch(
-                    initialIsPrimary: true,
-                  showTextInfos: false,
-                  onChanged: (value) {
-                    context.read<AuthCubit>().isPrimaryDevice = value;
-                  },
-                ),
-                const SizedBox(height: 20.0),
-                CustomButton(
-                  text: 'Login',
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      context.read<AuthCubit>().signInWithEmailAndPassword(
-                            emailController.text,
-                            passwordController.text,
-                          );
-                    }
-                  },
-                ),
-                const SizedBox(height: 8.0),
-                CustomButton(
-                  text: 'Create Account',
-                  backgroundColor: const Color(0x3304C6B3),
-                  textColor: const Color(0xFF04C6B3),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/sign-up');
-                  },
-                ),
-              ],
+            child: SingleChildScrollView(
+              padding:
+                  const EdgeInsets.only(top: 160.0, left: 32.0, right: 32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome Back',
+                    style: TextStyle(fontSize: 40.0, color: Colors.black),
+                  ),
+                  const Text(
+                    'Login to access your account',
+                    style: TextStyle(fontSize: 15.0, color: Color(0xff999999)),
+                  ),
+                  const SizedBox(height: 25.0),
+                  CustomTextInput(
+                    hintText: 'Enter your email…',
+                    controller: emailController,
+                    validator: ValidatorService.emailValidator,
+                  ),
+                  const SizedBox(height: 15.0),
+                  PasswordInput(
+                    controller: passwordController,
+                    validator: ValidatorService.passwordValidator,
+                  ),
+                  const SizedBox(height: 30.0),
+                  CustomButton(
+                    text: 'Login',
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        context.read<AuthCubit>().signInWithEmailAndPassword(
+                              emailController.text,
+                              passwordController.text,
+                            );
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 15.0),
+                  CustomButton(
+                    text: 'Create Account',
+                    backgroundColor: const Color(0x3304C6B3),
+                    textColor: const Color(0xFF04C6B3),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/sign-up');
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safe_transfer/main.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -18,7 +17,7 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
       );
-      _setPrimaryDevice();
+      //_setPrimaryDevice();
       emit(Authenticated(userCredential.user!));
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message.toString()));
@@ -27,25 +26,19 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  // save user info as primary device in firestore
-  void _setPrimaryDevice() async {
-    if (!isPrimaryDevice) {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({
-        'uid': FirebaseAuth.instance.currentUser!.uid,
-        'primaryDeviceId': null,
-      });
-      return;
-    }
-    FirebaseFirestore.instance
+
+  // check if user is first time login
+  void checkFirstTimeLogin() async {
+    emit(AuthLoading());
+    final userData = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .set({
-      'uid': FirebaseAuth.instance.currentUser!.uid,
-      'primaryDeviceId': deviceInfo.deviceId,
-    });
+        .get();
+    if (userData.exists) {
+      emit(AlreadyAuthenticated());
+    } else {
+      emit(FirstTimeLogin());
+    }
   }
 
   void signUpWithEmailAndPassword(String email, String password) async {
