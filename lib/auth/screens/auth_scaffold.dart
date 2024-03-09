@@ -7,8 +7,8 @@ import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 class AuthScaffold extends StatelessWidget {
   final Widget? child;
   final void Function() onAuthSuccess;
-  final void Function()? onFirstTimeLogin;
-  const AuthScaffold({super.key, this.child, required this.onAuthSuccess, this.onFirstTimeLogin});
+  final void Function(bool? isPrimaryDevice)? onAuthUserLogin;
+  const AuthScaffold({super.key, this.child, required this.onAuthSuccess, this.onAuthUserLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +17,8 @@ class AuthScaffold extends StatelessWidget {
         if (state is Authenticated) {
           Navigator.pop(context);
           onAuthSuccess.call();
-        } else if (state is FirstTimeLogin) {
-          onFirstTimeLogin?.call();
+        } else if (state is AuthUserLogin) {
+          onAuthUserLogin?.call(state.isPrimaryDevice);
         }
         else if (state is AuthError) {
           Navigator.pop(context);

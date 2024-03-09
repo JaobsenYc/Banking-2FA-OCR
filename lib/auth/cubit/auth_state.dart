@@ -6,9 +6,8 @@ sealed class AuthState {}
 final class AuthInitial extends AuthState {}
 
 final class Authenticated extends AuthState {
-  final User user;
 
-  Authenticated(this.user);
+  Authenticated();
 }
 
 final class Unauthenticated extends AuthState {}
@@ -35,7 +34,8 @@ final class AuthSignedOutSuccess extends AuthState {}
 
 final class AuthSignedOutUnauthenticated extends AuthState {}
 
-final class FirstTimeLogin extends AuthState {}
+final class AuthUserLogin extends AuthState {
+  final bool? isPrimaryDevice;
 
-
-final class AlreadyAuthenticated extends AuthState {}
+  AuthUserLogin(this.isPrimaryDevice);
+}

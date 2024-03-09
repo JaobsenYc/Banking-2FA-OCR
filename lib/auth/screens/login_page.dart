@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safe_transfer/auth/device_type/device_type_page.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/utils/app_routes.dart';
+import 'package:safe_transfer/utils/functions.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
@@ -22,8 +24,11 @@ class LoginPage extends StatelessWidget {
       onAuthSuccess: () {
         authCubit.checkFirstTimeLogin();
       },
-      onFirstTimeLogin: () {
-        Navigator.pushReplacementNamed(context, AppRoutes.deviceType);
+      onAuthUserLogin: (bool? isPrimaryDevice) {
+        pushReplacement(
+          context,
+          DeviceTypePage(isPrimaryDevice: isPrimaryDevice),
+        );
       },
       child: Scaffold(
         body: Container(
