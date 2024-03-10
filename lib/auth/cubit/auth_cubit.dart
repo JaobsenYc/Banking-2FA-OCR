@@ -1,8 +1,9 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:safe_transfer/main.dart';
 part 'auth_state.dart';
 
@@ -83,6 +84,7 @@ class AuthCubit extends Cubit<AuthState> {
           'balance': _generateBalance(),
           'primaryDeviceId': deviceInfo.deviceId,
           'expiryDate': _generateExpiryDate(),
+          'sortCode': _generateSortCode(),
         });
       } else if (!isPrimaryDevice) {
         await userDoc.set({
@@ -90,6 +92,7 @@ class AuthCubit extends Cubit<AuthState> {
           'balance': _generateBalance(),
           'authenticatorDeviceId': deviceInfo.deviceId,
           'expiryDate': _generateExpiryDate(),
+          'sortCode': _generateSortCode(),
         });
       }
       emit(Authenticated());
@@ -119,10 +122,14 @@ class AuthCubit extends Cubit<AuthState> {
     return 1000 + (DateTime.now().millisecondsSinceEpoch % 10000);
   }
 
-  // generate expiry date for the card
   Timestamp _generateExpiryDate() {
     final now = DateTime.now();
     final expiryDate = DateTime(now.year + 3, now.month);
     return Timestamp.fromDate(expiryDate);
+  }
+
+  String _generateSortCode() {
+    final random = Random();
+    return '${random.nextInt(99).toString().padLeft(2, '0')}-${random.nextInt(99).toString().padLeft(2, '0')}-${random.nextInt(99).toString().padLeft(2, '0')}';
   }
 }

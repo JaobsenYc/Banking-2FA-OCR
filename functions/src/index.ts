@@ -9,6 +9,10 @@
 
 import * as functions from "firebase-functions";
 import * as CryptoJS from "crypto-js";
+// import firstore
+import * as admin from "firebase-admin";
+
+admin.initializeApp();
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -23,19 +27,20 @@ exports.encryptData = functions.https.onCall((data) => {
   const iv = CryptoJS.lib.WordArray.random(128 / 8);
   const ciphertext = CryptoJS.AES.encrypt( // eslint-disable-line new-cap
     JSON.stringify(jsonData),
-    CryptoJS.enc.Hex.parse(secretKey),
+    CryptoJS.enc.Hex.parse(secretKey), // eslint-disable-line new-cap
     {iv: iv},
   ).toString();
   // Generate HMAC using ciphertext and IV
-  const hmac = CryptoJS.HmacSHA256(ciphertext + // eslint-disable-line new-cap
-    CryptoJS.enc.Hex.stringify(iv), // eslint-disable-line new-cap
-  CryptoJS.enc.Hex.parse(secretKeyForHMAC)) // eslint-disable-line new-cap
+  const hmac = CryptoJS.HmacSHA256( // eslint-disable-line new-cap
+    ciphertext +
+      CryptoJS.enc.Hex.stringify(iv), // eslint-disable-line new-cap
+    CryptoJS.enc.Hex.parse(secretKeyForHMAC),
+  ) // eslint-disable-line new-cap
     .toString();
-  const encryptedData = hmac + CryptoJS.enc.Hex.stringify(iv)+
-  ciphertext; // eslint-disable-line new-cap
+  const encryptedData = hmac + CryptoJS.enc.Hex.stringify(iv) +
+    ciphertext; // eslint-disable-line new-cap
   return encryptedData;
 });
-
 
 exports.decryptData = functions.https.onCall((data) => {
   const hmacPlusIvPlusCiphertext = data;
@@ -45,7 +50,8 @@ exports.decryptData = functions.https.onCall((data) => {
   // Regenerate HMAC using ciphertext and IV for validation
   const currentHmac = CryptoJS.HmacSHA256( // eslint-disable-line new-cap
     ciphertext + CryptoJS.enc.Hex.stringify(iv), // eslint-disable-line new-cap
-    CryptoJS.enc.Hex.parse(secretKeyForHMAC)) // eslint-disable-line new-cap
+    CryptoJS.enc.Hex.parse(secretKeyForHMAC),
+  ) // eslint-disable-line new-cap
     .toString();
   if (currentHmac !== hmac) {
     return "Integrity check failed";
@@ -59,3 +65,55 @@ exports.decryptData = functions.https.onCall((data) => {
   return decryptedData;
 });
 
+// just a normal function to create a transaction in firestore
+exports.createTransaction = functions.https.onCall(async (data) => {
+  try {
+    const db = admin.firestore();
+    if (data.status == "initiated") {
+      const ref = db.collection("transfers").doc(data.id);
+      await ref.set(data);
+      return {
+        message: "Transaction created successfully",
+        status: "initiated",
+      };
+    }
+    const ref = db.collection("transfers").doc(data.id);
+    const doc = await ref.get();
+    const transaction = doc.data();
+    if (transaction?.status != "initiated") {
+      return {
+        message: "Transaction already " + transaction?.status,
+        status: transaction?.status,
+      };
+    }
+    const now = new Date();
+    const created = new Date(transaction?.createdAt);
+    const diff = now.getTime() - created.getTime();
+    // in minutes
+    const minutes = Math.floor(diff / 60000);
+    if (minutes > 10) {
+      await ref.update({status: "expired"});
+      return {
+        message: "Transaction expired",
+        status: "expired",
+      };
+    }
+    if (data.status == "accepted") {
+      const ref = db.collection("transfers").doc(data.id);
+      await ref.update({status: "accepted"});
+      return {
+        message: "Transaction accepted successfully",
+        status: "accepted",
+      };
+    }
+    return {
+      message: "Transaction status not valid",
+      status: "error",
+    };
+  } catch (error) {
+    return {
+      message: "Error creating transaction",
+      status: "error",
+    };
+  }
+});
