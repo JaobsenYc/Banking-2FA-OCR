@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/auth/device_type/device_type_page.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
-import 'package:safe_transfer/utils/app_routes.dart';
 import 'package:safe_transfer/utils/functions.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';

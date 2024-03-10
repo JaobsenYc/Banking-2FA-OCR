@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:safe_transfer/main.dart';
-import 'package:safe_transfer/utils/app_device_info.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -82,12 +82,14 @@ class AuthCubit extends Cubit<AuthState> {
           'accountNumber': await _generateAccountNumber(),
           'balance': _generateBalance(),
           'primaryDeviceId': deviceInfo.deviceId,
+          'expiryDate': _generateExpiryDate(),
         });
       } else if (!isPrimaryDevice) {
         await userDoc.set({
           'accountNumber': await  _generateAccountNumber(),
           'balance': _generateBalance(),
           'authenticatorDeviceId': deviceInfo.deviceId,
+          'expiryDate': _generateExpiryDate(),
         });
       }
       emit(Authenticated());
@@ -117,14 +119,10 @@ class AuthCubit extends Cubit<AuthState> {
     return 1000 + (DateTime.now().millisecondsSinceEpoch % 10000);
   }
 
-  void _setDeviceType(bool isPrimaryDevice) async {
-    final doc = FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid);
-    if (isPrimaryDevice) {
-      await doc.set({'primaryDeviceId': deviceInfo.deviceId});
-    } else if (!isPrimaryDevice) {
-      await doc.set({'authenticatorDeviceId': deviceInfo.deviceId});
-    }
+  // generate expiry date for the card
+  Timestamp _generateExpiryDate() {
+    final now = DateTime.now();
+    final expiryDate = DateTime(now.year + 3, now.month);
+    return Timestamp.fromDate(expiryDate);
   }
 }
