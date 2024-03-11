@@ -64,39 +64,39 @@ class AuthCubit extends Cubit<AuthState> {
   // uid from firebase auth
   void handleUserData(bool isPrimaryDevice) async {
     try {
-          emit(AuthLoading());
-    final userDoc = FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid);
-    final userData = await userDoc.get();
-    if (userData.exists) {
-      if (isPrimaryDevice) {
-        await userDoc.set(
-            {'primaryDeviceId': deviceInfo.deviceId}, SetOptions(merge: true));
-      } else if (!isPrimaryDevice) {
-        await userDoc.set({'authenticatorDeviceId': deviceInfo.deviceId},
-            SetOptions(merge: true));
-      }
-    } else {
-      if (isPrimaryDevice) {
-        await userDoc.set({
-          'accountNumber': await _generateAccountNumber(),
-          'balance': _generateBalance(),
-          'primaryDeviceId': deviceInfo.deviceId,
-          'expiryDate': _generateExpiryDate(),
-          'sortCode': _generateSortCode(),
-        });
-      } else if (!isPrimaryDevice) {
-        await userDoc.set({
-          'accountNumber': await  _generateAccountNumber(),
-          'balance': _generateBalance(),
-          'authenticatorDeviceId': deviceInfo.deviceId,
-          'expiryDate': _generateExpiryDate(),
-          'sortCode': _generateSortCode(),
-        });
+      emit(AuthLoading());
+      final userDoc = FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid);
+      final userData = await userDoc.get();
+      if (userData.exists) {
+        if (isPrimaryDevice) {
+          await userDoc.update({'primaryDeviceId': deviceInfo.deviceId});
+        } else if (!isPrimaryDevice) {
+          await userDoc.update({'authenticatorDeviceId': deviceInfo.deviceId});
+        }
+      } else {
+        if (isPrimaryDevice) {
+          await userDoc.set({
+            'accountNumber': await _generateAccountNumber(),
+            'balance': _generateBalance(),
+            'primaryDeviceId': deviceInfo.deviceId,
+            'authenticatorDeviceId': null,
+            'expiryDate': _generateExpiryDate(),
+            'sortCode': _generateSortCode(),
+          });
+        } else if (!isPrimaryDevice) {
+          await userDoc.set({
+            'accountNumber': await _generateAccountNumber(),
+            'balance': _generateBalance(),
+            'authenticatorDeviceId': deviceInfo.deviceId,
+            'primaryDeviceId': null,
+            'expiryDate': _generateExpiryDate(),
+            'sortCode': _generateSortCode(),
+          });
+        }
       }
       emit(Authenticated());
-    }
     } catch (e) {
       emit(AuthError(e.toString()));
     }

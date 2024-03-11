@@ -13,7 +13,7 @@ class DeviceTypePage extends StatefulWidget {
 }
 
 class _DeviceTypePageState extends State<DeviceTypePage> {
-  int selectedDeviceType = 0;
+  late int selectedDeviceType;
 
   @override
   void initState() {
@@ -24,25 +24,43 @@ class _DeviceTypePageState extends State<DeviceTypePage> {
   void _init() {
     if (widget.isPrimaryDevice != null) {
       selectedDeviceType = widget.isPrimaryDevice == true ? 0 : 1;
+    } else {
+      selectedDeviceType = 0;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     bool shouldShowPrimaryDevice =
-        (widget.isPrimaryDevice == false || widget.isPrimaryDevice == null);
-    bool shouldShowAuthenticatorDevice =
         (widget.isPrimaryDevice == true || widget.isPrimaryDevice == null);
+    bool shouldShowAuthenticatorDevice =
+        (widget.isPrimaryDevice == false || widget.isPrimaryDevice == null);
     return BlocProvider(
       create: (context) => AuthCubit(),
       child: Builder(builder: (context) {
         final authCubit = BlocProvider.of<AuthCubit>(context);
         return BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
+            if (state is AuthLoading) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 10.0),
+                      Text('Loading...'),
+                    ],
+                  ),
+                ),
+              );
+            }
             if (state is Authenticated) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               Navigator.pushReplacementNamed(context, AppRoutes.home);
             }
             if (state is AuthError) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
@@ -63,7 +81,7 @@ class _DeviceTypePageState extends State<DeviceTypePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Login as!",
+                    "You're login as:",
                     style: TextStyle(
                       fontSize: 20.0,
                       color: Color(0xff999999),
