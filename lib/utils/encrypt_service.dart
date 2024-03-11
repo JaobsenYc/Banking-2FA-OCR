@@ -40,10 +40,6 @@ class ImageDetectionService {
         return result;
       }
     }
-
-    /// For tests
-    result['data'] = qrData;
-    return result;
     /// End of tests
     if (sameName &&
         sameAmount &&
