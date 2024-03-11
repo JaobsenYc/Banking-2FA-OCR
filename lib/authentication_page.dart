@@ -113,7 +113,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_pictures.isNotEmpty)
-                // just the first picture
                 Expanded(
                   child: Container(
                     color: Colors.white,
