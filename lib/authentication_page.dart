@@ -93,6 +93,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     final HttpsCallableResult result = await callable.call({
       'status': 'rejected',
       'id': data.id,
+      'userId': FirebaseAuth.instance.currentUser?.uid,
+      'accountNumber': data.accountNumber,
+      'sortCode': data.sortCode,
+      'amount': data.amount,
+      'name': data.name,
     });
     debugPrint('Result: ${result.data}');
     if( result.data['status'] == 'rejected' ){
