@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "crypto-js": "^4.2.0"
+    "crypto-js": "^4.2.0",
+    "firebase-functions": "^4.8.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2"

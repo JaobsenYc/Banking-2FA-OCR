@@ -37,7 +37,8 @@ exports.encryptData = functions.https.onCall((data) => {
     CryptoJS.enc.Hex.parse(secretKeyForHMAC),
   ) // eslint-disable-line new-cap
     .toString();
-  const encryptedData = hmac + CryptoJS.enc.Hex.stringify(iv) +
+  const encryptedData = hmac +
+    CryptoJS.enc.Hex.stringify(iv) + // eslint-disable-line new-cap
     ciphertext; // eslint-disable-line new-cap
   return encryptedData;
 });
@@ -45,7 +46,9 @@ exports.encryptData = functions.https.onCall((data) => {
 exports.decryptData = functions.https.onCall((data) => {
   const hmacPlusIvPlusCiphertext = data;
   const hmac = hmacPlusIvPlusCiphertext.substr(0, 64);
-  const iv = CryptoJS.enc.Hex.parse(hmacPlusIvPlusCiphertext.substr(64, 32));
+  const iv = CryptoJS.enc.Hex.parse(
+    hmacPlusIvPlusCiphertext.substr(64, 32),
+  ); // eslint-disable-line new-cap
   const ciphertext = hmacPlusIvPlusCiphertext.substr(96);
   // Regenerate HMAC using ciphertext and IV for validation
   const currentHmac = CryptoJS.HmacSHA256( // eslint-disable-line new-cap
@@ -69,41 +72,68 @@ exports.decryptData = functions.https.onCall((data) => {
 exports.createTransaction = functions.https.onCall(async (data) => {
   try {
     const db = admin.firestore();
-    if (data.status == "initiated") {
-      const ref = db.collection("transfers").doc(data.id);
-      await ref.set(data);
+    const refTransfers = db.collection("transfers").doc(data.id);
+    const dataTransfers = await refTransfers.get();
+    const user = db.collection("users").doc(data.userId);
+    const userData = await user.get();
+    if (data.status == "created") {
+      data.status = "initiated";
+      user.update({
+        balance: (userData.data()?.balance - data.amount),
+      });
+      await refTransfers.set(data);
       return {
         message: "Transaction created successfully",
         status: "initiated",
       };
     }
-    const ref = db.collection("transfers").doc(data.id);
-    const doc = await ref.get();
-    const transaction = doc.data();
-    if (transaction?.status != "initiated") {
+    if (dataTransfers.data()?.status != "initiated") {
       return {
-        message: "Transaction already " + transaction?.status,
-        status: transaction?.status,
+        message: "Transaction already " + dataTransfers.data()?.status,
+        status: dataTransfers.data()?.status,
       };
     }
     const now = new Date();
-    const created = new Date(transaction?.createdAt);
+    const created = new Date(dataTransfers.data()?.createdAt);
     const diff = now.getTime() - created.getTime();
     // in minutes
     const minutes = Math.floor(diff / 60000);
     if (minutes > 10) {
-      await ref.update({status: "expired"});
+      user.update({
+        balance: (userData.data()?.balance + data.amount),
+      });
+      await refTransfers.update({status: "expired"});
       return {
         message: "Transaction expired",
         status: "expired",
       };
     }
     if (data.status == "accepted") {
-      const ref = db.collection("transfers").doc(data.id);
-      await ref.update({status: "accepted"});
+      const account = await db.collection("users")
+        .where("accountNumber", "==", data.accountNumber)
+        .where("sortCode", "==", data.sortCode).limit(1).get();
+      if (!account.empty) {
+        const accountData = account.docs[0];
+        const accountUser = db.collection("users").doc(accountData.id);
+        await refTransfers.update(
+          {receiverId: accountData.id, status: "accepted"});
+        await accountUser.update({
+          balance: (accountData.data()?.balance + data.amount),
+        });
+      }
       return {
         message: "Transaction accepted successfully",
         status: "accepted",
+      };
+    }
+    if (data.status == "rejected") {
+      user.update({
+        balance: (userData.data()?.balance + data.amount),
+      });
+      await refTransfers.update({status: "rejected"});
+      return {
+        message: "Transaction rejected successfully",
+        status: "rejected",
       };
     }
     return {
@@ -112,7 +142,7 @@ exports.createTransaction = functions.https.onCall(async (data) => {
     };
   } catch (error) {
     return {
-      message: "Error creating transaction",
+      message: "Error creating transaction =>" + error,
       status: "error",
     };
   }

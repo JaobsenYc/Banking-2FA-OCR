@@ -10,7 +10,8 @@ import 'package:safe_transfer/widgets/custom_button.dart';
 import 'package:safe_transfer/widgets/custom_text_input.dart';
 
 class TransferPage extends StatelessWidget {
-  TransferPage({super.key});
+  final double balance;
+  TransferPage({super.key, required this.balance});
   final TextEditingController payeeFullNameController = TextEditingController();
   final TextEditingController sortCodeController = TextEditingController();
   final TextEditingController accountNumberController = TextEditingController();
@@ -34,7 +35,6 @@ class TransferPage extends StatelessWidget {
                 },
               );
             } else if (state is TransferError) {
-              Navigator.of(context).pop();
               AwesomeDialog(
                 context: context,
                 dialogType: DialogType.error,
@@ -137,6 +137,7 @@ class TransferPage extends StatelessWidget {
                                               accountNumberController.text,
                                           amount: double.parse(
                                               amountController.text),
+                                          balance: balance,
                                         );
                                   }
                                 },

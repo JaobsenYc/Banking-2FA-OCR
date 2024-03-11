@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
@@ -9,30 +10,38 @@ part 'transfer_state.dart';
 class TransferCubit extends Cubit<TransferState> {
   TransferCubit() : super(TransferInitial());
 
-  void createTransfer(
-      {required String payeeFullName,
-      required String? sortCode,
-      required String accountNumber,
-      required double amount}) async {
+  void createTransfer({
+    required String payeeFullName,
+    required String? sortCode,
+    required String accountNumber,
+    required double amount,
+    required double balance,
+  }) async {
     try {
+      if (balance < amount) {
+        emit(TransferError(message: 'Insufficient funds'));
+        return;
+      }
       emit(TransferLoading());
-
       final ref = FirebaseFirestore.instance.collection('transfers').doc();
-      createTransferWithFunction({
-        'payeeFullName': payeeFullName,
-        'sortCode': sortCode,
-        'accountNumber': accountNumber,
-        'amount': amount,
-        'id': ref.id,
-        'status': 'initiated',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+
       final data = await _callEncryptFunction({
         'payeeFullName': payeeFullName,
         'sortCode': sortCode,
         'accountNumber': accountNumber,
         'amount': amount,
         'id': ref.id,
+      });
+      createTransferWithFunction({
+        'payeeFullName': payeeFullName,
+        'sortCode': sortCode,
+        'accountNumber': accountNumber,
+        'amount': amount,
+        'id': ref.id,
+        'status': 'created',
+        'createdAt': Timestamp.now().millisecondsSinceEpoch,
+        'userId': FirebaseAuth.instance.currentUser!.uid,
+        'encryptedData': data,
       });
       emit(TransferCreated(
         encryptedData: data,
@@ -67,9 +76,13 @@ class TransferCubit extends Cubit<TransferState> {
 
   // create transfer with firebase function
   Future<void> createTransferWithFunction(Map<String, dynamic> data) async {
-    HttpsCallable callable =
-        FirebaseFunctions.instance.httpsCallable('createTransaction');
-    final HttpsCallableResult result = await callable.call(data);
-    debugPrint("====> Result data ${result.data}");
+    try {
+      HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('createTransaction');
+      final HttpsCallableResult result = await callable.call(data);
+      debugPrint("====> Result data ${result.data}");
+    } catch (e) {
+      debugPrint("Error $e");
+    }
   }
 }
