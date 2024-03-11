@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
 import 'package:safe_transfer/utils/encrypt_service.dart';
+import 'package:safe_transfer/utils/functions.dart';
 import 'package:safe_transfer/widgets/custom_app_bar.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -44,25 +46,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   // this function confirm the transfer
   Future<void> _confirmTransfer(TransferData data) async {
-    setState(() {
-      loading = true;
-    });
+    showLoadingDialog(context, 'Confirming Transfer...');
     HttpsCallable callable =
         FirebaseFunctions.instance.httpsCallable('createTransaction');
     final HttpsCallableResult result = await callable.call({
       'status': 'accepted',
       'id': data.id,
+      'userId': FirebaseAuth.instance.currentUser?.uid,
+      'accountNumber': data.accountNumber,
+      'sortCode': data.sortCode,
+      'amount': data.amount,
+      'name': data.name,
     });
     debugPrint('Result: ${result.data}');
-    setState(() {
-      loading = false;
-    });
+    if( result.data['status'] == 'accepted' ){
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pushReplacementNamed('/home');
+      await Future.delayed(const Duration(milliseconds: 500));
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transfer confirmed'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    else {
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to confirm transfer! Please try again.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _declineTransfer(TransferData data) async {
-    setState(() {
-      loading = true;
-    });
+    showLoadingDialog(context, 'Declining Transfer...');
     HttpsCallable callable =
         FirebaseFunctions.instance.httpsCallable('createTransaction');
     final HttpsCallableResult result = await callable.call({
@@ -70,9 +95,31 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       'id': data.id,
     });
     debugPrint('Result: ${result.data}');
-    setState(() {
-      loading = false;
-    });
+    if( result.data['status'] == 'rejected' ){
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pushReplacementNamed('/home');
+      await Future.delayed(const Duration(milliseconds: 500));
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transfer declined'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    else {
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to decline transfer! Please try again.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override

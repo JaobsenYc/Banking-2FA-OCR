@@ -120,6 +120,8 @@ exports.createTransaction = functions.https.onCall(async (data) => {
         await accountUser.update({
           balance: (accountData.data()?.balance + data.amount),
         });
+      } else {
+        await refTransfers.update({status: "accepted"});
       }
       return {
         message: "Transaction accepted successfully",

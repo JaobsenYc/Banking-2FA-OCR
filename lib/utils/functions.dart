@@ -18,3 +18,22 @@ Future<T?> pushNamed<T>(BuildContext context, String routeName) async{
 Future<T?> pushReplacement<T>(BuildContext context, Widget page) async{
   return await Navigator.pushReplacement<T, T?>(context, MaterialPageRoute(builder: (context) => page));
 }
+
+// show loading dialog
+void showLoadingDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return AlertDialog(
+        content: Row(
+          children: <Widget>[
+            const CircularProgressIndicator(),
+            const SizedBox(width: 20),
+            Text(message),
+          ],
+        ),
+      );
+    },
+  );
+}
