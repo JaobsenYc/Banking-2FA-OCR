@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -29,7 +31,20 @@ class ImageDetectionService {
     bool sameAccountNumber = qrData.accountNumber == textData.accountNumber;
     bool sameSortCode = qrData.sortCode == textData.sortCode;
     bool sameID = qrData.id == textData.id;
+    // check if the transfer status is not initiated
+    final data = await FirebaseFirestore.instance.collection('transfers').doc(qrData.id).get();
+    if (data.exists) {
+      final status = data.get('status');
+      if (status != 'initiated') {
+        result['error'] = "Transfer already $status";
+        return result;
+      }
+    }
 
+    /// For tests
+    result['data'] = qrData;
+    return result;
+    /// End of tests
     if (sameName &&
         sameAmount &&
         sameAccountNumber &&

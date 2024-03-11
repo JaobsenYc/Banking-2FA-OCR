@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
@@ -20,20 +21,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   bool? isDataMatching;
 
+  bool loading = false;
+
   void _getDocument() async {
     try {
-      setState(() {
-        isScanning = true;
-      });
       final pictures = await CunningDocumentScanner.getPictures(
         noOfPages: 1,
         isGalleryImportAllowed: true,
       );
       if (!mounted) return;
       if (pictures?.isEmpty == true || pictures == null) {
-        setState(() {
-          isScanning = false;
-        });
         return;
       }
       setState(() {
@@ -43,8 +40,38 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     } catch (exception) {
       debugPrint('Exception: $exception');
     }
+  }
+
+  // this function confirm the transfer
+  Future<void> _confirmTransfer(TransferData data) async {
     setState(() {
-      isScanning = false;
+      loading = true;
+    });
+    HttpsCallable callable =
+        FirebaseFunctions.instance.httpsCallable('createTransaction');
+    final HttpsCallableResult result = await callable.call({
+      'status': 'accepted',
+      'id': data.id,
+    });
+    debugPrint('Result: ${result.data}');
+    setState(() {
+      loading = false;
+    });
+  }
+
+  Future<void> _declineTransfer(TransferData data) async {
+    setState(() {
+      loading = true;
+    });
+    HttpsCallable callable =
+        FirebaseFunctions.instance.httpsCallable('createTransaction');
+    final HttpsCallableResult result = await callable.call({
+      'status': 'rejected',
+      'id': data.id,
+    });
+    debugPrint('Result: ${result.data}');
+    setState(() {
+      loading = false;
     });
   }
 
@@ -60,13 +87,17 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   _checker() async {
+    setState(() {
+      isScanning = true;
+    });
     final res =
         await ImageDetectionService.isDataMatching(File(_pictures.first));
-
+    setState(() {
+      isScanning = false;
+    });
     if (res['data'] != null) {
       final data = res['data'] as TransferData;
       showModalBottomSheet(
-        isDismissible: false,
         // ignore: use_build_context_synchronously
         context: context,
         builder: (context) {
@@ -74,10 +105,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             scannedData: data,
             onRescan: _getDocument,
             onConfirm: () {
-              // confirm transfer
+              _confirmTransfer(data);
             },
             onCancel: () {
-              // cancel transfer
+              _declineTransfer(data);
             },
           );
         },
@@ -87,12 +118,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     if (res['error'] != null) {
       showModalBottomSheet(
-        isDismissible: false,
         // ignore: use_build_context_synchronously
         context: context,
         builder: (context) {
           return FailedToMatchDataDialog(
-            fieldsNotMatching: List<String>.from(res['notMatchingList'] ?? []),
+            title: res['error'],
+            fieldsNotMatching: List<String>.from(
+              res['notMatchingList'] ?? [],
+            ),
             onRescan: _getDocument,
           );
         },
@@ -141,6 +174,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             // rescan button
                             ElevatedButton(
                               onPressed: () async {
+                                if (isScanning) return;
                                 _checker();
                               },
                               style: ElevatedButton.styleFrom(
@@ -154,7 +188,17 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                   color: Colors.white,
                                 ),
                               ),
-                              child: const Text('Resecan ↻'),
+                              child: isScanning
+                                  ? const Center(
+                                    child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                  )
+                                  : const Text('Rescan ↻'),
                             ),
                           ],
                         ),
@@ -551,8 +595,7 @@ class DataIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){
-
+      onTap: () {
         onTap?.call();
       },
       child: Container(
@@ -611,9 +654,10 @@ class DataInfo extends StatelessWidget {
 /// failured to match the data bottom sheet dialog
 class FailedToMatchDataDialog extends StatelessWidget {
   final List<String> fieldsNotMatching;
+  final String? title;
   final void Function()? onRescan;
   const FailedToMatchDataDialog(
-      {super.key, required this.fieldsNotMatching, this.onRescan});
+      {super.key, required this.fieldsNotMatching, this.onRescan, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -636,41 +680,44 @@ class FailedToMatchDataDialog extends StatelessWidget {
               ),
               const Divider(),
               const SizedBox(height: 20),
-              const Text(
-                'The scanned data does not match the data in the system.',
-                style: TextStyle(
+              Text(
+                title ??
+                    'The scanned data does not match the data in the system.',
+                style: const TextStyle(
                   fontSize: 14,
                   color: Color(0xFF999999),
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Fields Not Matching',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF999999),
-                  fontWeight: FontWeight.w500,
+              if (fieldsNotMatching.isNotEmpty) ...[
+                const Text(
+                  'Fields Not Matching',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF999999),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: fieldsNotMatching
-                    .map((field) => Chip(
-                          label: Text(
-                            field,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: fieldsNotMatching
+                      .map((field) => Chip(
+                            label: Text(
+                              field,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          backgroundColor: const Color(0xFFFF5555),
-                        ))
-                    .toList(),
-              ),
+                            backgroundColor: const Color(0xFFFF5555),
+                          ))
+                      .toList(),
+                ),
+              ],
               const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -679,7 +726,7 @@ class FailedToMatchDataDialog extends StatelessWidget {
                     icon: Icons.refresh_outlined,
                     color: Colors.black,
                     onTap: () {
-                                            Navigator.of(context).pop();
+                      Navigator.of(context).pop();
 
                       onRescan?.call();
                     },
