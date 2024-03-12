@@ -23,8 +23,9 @@ class TransferCubit extends Cubit<TransferState> {
         return;
       }
       emit(TransferLoading());
-      final ref = FirebaseFirestore.instance.collection('transfers').doc();
-
+      // generate custom document id with timestamp
+      final microseconds = DateTime.now().microsecondsSinceEpoch;
+      final ref = FirebaseFirestore.instance.collection('transfers').doc(microseconds.toString());
       final data = await _callEncryptFunction({
         'payeeFullName': payeeFullName,
         'sortCode': sortCode,

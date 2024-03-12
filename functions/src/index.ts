@@ -149,3 +149,37 @@ exports.createTransaction = functions.https.onCall(async (data) => {
     };
   }
 });
+
+exports.checkExpiredTransactions = functions.pubsub
+  .schedule("every 30 minutes")
+  .onRun(async () => {
+    const db = admin.firestore();
+    const transfersSnapshot = await db
+      .collection("transfers")
+      .where("status", "==", "initiated")
+      .get();
+
+    const now = new Date();
+
+    await Promise.all(
+      transfersSnapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const createdAt = data.createdAt.toDate();
+        const minutesSinceCreation = Math.floor(
+          (now.getTime() - createdAt.getTime()) / 60000
+        );
+
+        if (minutesSinceCreation > 10) {
+          // Update user balance
+          const user = await db.collection("users").doc(data.userId).get();
+          const userData = user.data();
+          await user.ref.update({
+            balance: userData?.balance + data.amount,
+          });
+
+          // Update transaction status
+          await doc.ref.update({status: "expired"});
+        }
+      })
+    );
+  });

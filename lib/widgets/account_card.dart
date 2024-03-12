@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:safe_transfer/quick_service.dart';
 
 class AccountCard extends StatelessWidget {
-  const AccountCard({super.key});
+  final bool showQuickServices;
+  const AccountCard({super.key, required this.showQuickServices});
 
   @override
   Widget build(BuildContext context) {
@@ -108,9 +109,10 @@ class AccountCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20.0),
-              QuickService(
-                balance: data?['balance'].toDouble(),
-              ),
+              if (showQuickServices)
+                QuickService(
+                  balance: data?['balance'].toDouble(),
+                ),
             ],
           );
         });

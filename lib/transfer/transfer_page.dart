@@ -78,7 +78,9 @@ class TransferPage extends StatelessWidget {
                       // 卡片缩进16
                       const Padding(
                         padding: EdgeInsets.only(left: 16, right: 16),
-                        child: AccountCard(),
+                        child: AccountCard(
+                          showQuickServices: false,
+                        ),
                       ),
                       // 输入部分缩进32
                       Padding(

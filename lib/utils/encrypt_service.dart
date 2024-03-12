@@ -18,8 +18,20 @@ class ImageDetectionService {
 
   // this function  check if the data from the 2 functions is matching
   static Future<Map<String, dynamic>> isDataMatching(File image) async {
-    Map<String, dynamic> result ={};
+    Map<String, dynamic> result = {};
     final qrData = await _detectQrCodeFromImage(image);
+    // check if the transfer status is not initiated
+    final data = await FirebaseFirestore.instance
+        .collection('transfers')
+        .doc(qrData?.id)
+        .get();
+    if (data.exists) {
+      final status = data.get('status');
+      if (status != 'initiated') {
+        result['error'] = "Transfer already $status";
+        return result;
+      }
+    }
     final textData = await _extractDataFromImage(image);
     if (qrData == null || textData == null) {
       result['error'] = "No data found in the image";
@@ -30,21 +42,9 @@ class ImageDetectionService {
     bool sameAccountNumber = qrData.accountNumber == textData.accountNumber;
     bool sameSortCode = qrData.sortCode == textData.sortCode;
     bool sameID = qrData.id == textData.id;
-    // check if the transfer status is not initiated
-    final data = await FirebaseFirestore.instance.collection('transfers').doc(qrData.id).get();
-    if (data.exists) {
-      final status = data.get('status');
-      if (status != 'initiated') {
-        result['error'] = "Transfer already $status";
-        return result;
-      }
-    }
+
     /// End of tests
-    if (sameName &&
-        sameAmount &&
-        sameAccountNumber &&
-        sameSortCode &&
-        sameID) {
+    if (sameName && sameAmount && sameAccountNumber && sameSortCode && sameID) {
       result['data'] = qrData;
       return result;
     }
@@ -52,10 +52,7 @@ class ImageDetectionService {
     result['error'] = "Data not matching";
     // set fields that are not matching in the result
     if (!sameName) {
-      result['notMatchingList'] = [
-        ...result['notMatchingList'] ?? [],
-        "Name"
-      ];
+      result['notMatchingList'] = [...result['notMatchingList'] ?? [], "Name"];
     }
     if (!sameAmount) {
       result['notMatchingList'] = [
@@ -76,10 +73,7 @@ class ImageDetectionService {
       ];
     }
     if (!sameID) {
-      result['notMatchingList'] = [
-        ...result['notMatchingList'] ?? [],
-        "ID"
-      ];
+      result['notMatchingList'] = [...result['notMatchingList'] ?? [], "ID"];
     }
     return result;
   }
@@ -137,7 +131,8 @@ class ImageDetectionService {
             // check if the text is a sort code like this 12-34-56 or infinty of 12-34-56....
             else if (RegExp(r'^\d{2}-\d{2}-\d{2}$').hasMatch(text)) {
               sortCode = text;
-            } else if (RegExp(r'^[A-Z]{3,}\s*\d+(?:[.,]\d+)?|(?:\£|\$)\s*\d+(?:[.,]\d+)?$')
+            } else if (RegExp(
+                    r'^[A-Z]{3,}\s*\d+(?:[.,]\d+)?|(?:\£|\$)\s*\d+(?:[.,]\d+)?$')
                 .hasMatch(text)) {
               // remove all the currency symbols and spaces
               String cleanedNumber =
