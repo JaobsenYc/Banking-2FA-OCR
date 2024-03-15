@@ -5,6 +5,7 @@ class TransferData {
   final String accountNumber;
   final String id;
   final String? encryptedData;
+  final String? status;
 
   TransferData({
     required this.amount,
@@ -13,6 +14,7 @@ class TransferData {
     required this.accountNumber,
     required this.id,
     this.encryptedData,
+    required this.status,
   });
 
   // from json
@@ -24,6 +26,7 @@ class TransferData {
       accountNumber: json['accountNumber'],
       id: json['id'],
       encryptedData: json['encryptedData'],
+      status: json['status'],
     );
   }
 }

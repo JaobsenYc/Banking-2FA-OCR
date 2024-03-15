@@ -19,7 +19,6 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
       );
-      //_setPrimaryDevice();
       emit(Authenticated());
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message.toString()));
@@ -27,6 +26,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthError(e.toString()));
     }
   }
+
 
   // check if user is first time login
   void checkFirstTimeLogin() async {

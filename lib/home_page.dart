@@ -116,6 +116,7 @@ class Transaction extends StatelessWidget {
                             accountNumber: data['accountNumber'],
                             id: data.id,
                             encryptedData: data['encryptedData'],
+                            status: data['status'],
                           ),
                         ),
                       ),

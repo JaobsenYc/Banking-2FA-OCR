@@ -161,6 +161,7 @@ class ImageDetectionService {
         sortCode: sortCode ?? '',
         accountNumber: accountNumber ?? '',
         id: id ?? '',
+        status: '',
       );
     } catch (e) {
       debugPrint("Error in extracting data from image $e");

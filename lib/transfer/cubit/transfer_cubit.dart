@@ -53,6 +53,7 @@ class TransferCubit extends Cubit<TransferState> {
           accountNumber: accountNumber,
           id: ref.id,
           encryptedData: data,
+          status: 'initiated',
         ),
       ));
     } on FirebaseFunctionsException catch (e) {

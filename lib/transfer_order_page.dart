@@ -8,6 +8,50 @@ class TransferOrderPage extends StatelessWidget {
 
   const TransferOrderPage({super.key, required this.model});
 
+  Widget statusWidget({required String lable, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: color,
+          width: 1.0,
+        ),
+        color: color.withOpacity(0.01),
+      ),
+      child: Center(
+        child: Text(
+          lable,
+          style:  TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // function that return text Widget based on the status
+  // initiaited - rejected - accepted - expired
+  Widget getStatusText(String? status) {
+    switch (status) {
+      case 'initiated':
+        return statusWidget(
+            lable: 'Initiated', color: const Color(0xFFFFA500)); // Teal
+      case 'accepted':
+        return statusWidget(
+            lable: 'Accepted', color: const Color(0xFF00A8E8)); // Blue
+      case 'expired':
+        return statusWidget(
+            lable: 'Expired', color: const Color(0xFFC4C4C4)); // Gray
+      default:
+        return statusWidget(
+            lable: 'Rejected',
+            color: const Color(0xFFE74C3C));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +123,8 @@ class TransferOrderPage extends StatelessWidget {
         ),
         const SizedBox(height: 10.0),
         getIDCard('ID: ${model.id}'),
+        const SizedBox(height: 20.0),
+        getStatusText(model.status),
       ],
     );
   }
