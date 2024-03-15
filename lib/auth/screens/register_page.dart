@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/utils/app_routes.dart';
@@ -64,6 +65,20 @@ class RegisterPage extends StatelessWidget {
                     controller: emailController,
                     validator: ValidatorService.emailValidator,
                   ),
+                  const SizedBox(height: 20),
+                  // phone nnumber input
+                  InternationalPhoneNumberInput(
+                      locale: 'en_UK',
+                      initialValue: PhoneNumber(isoCode: 'GB'),
+                      onInputChanged: (phone) {
+                        debugPrint(phone.phoneNumber);
+                      },
+                      countries: const ['GB', 'US', 'MA'],
+                      inputDecoration: const InputDecoration(
+                        hintText: 'Enter your phone number…',
+                        hintStyle: TextStyle(color: Color(0xff999999)),
+                        border: InputBorder.none,
+                      )),
                   const SizedBox(height: 20),
                   PasswordInput(
                     controller: passwordController,

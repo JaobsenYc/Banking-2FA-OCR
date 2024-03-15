@@ -25,6 +25,7 @@ dependencies:
   google_mlkit_barcode_scanning: ^0.10.0
   google_mlkit_text_recognition: ^0.11.0
   intl: any
+  intl_phone_number_input: ^0.7.4
   logger: 2.0.2+1
   pretty_qr_code: ^3.2.1
 

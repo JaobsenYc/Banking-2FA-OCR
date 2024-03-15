@@ -70,9 +70,7 @@ class LoginPage extends StatelessWidget {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         context.read<AuthCubit>().signInWithEmailAndPassword(
-                              emailController.text,
-                              passwordController.text,
-                            );
+                            emailController.text, passwordController.text);
                       }
                     },
                   ),

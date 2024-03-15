@@ -1,5 +1,5 @@
 class ValidatorService{
-
+  
 
   // email validation
   static String? emailValidator(String? value) {
