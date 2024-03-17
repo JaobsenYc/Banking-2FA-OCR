@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -121,47 +122,54 @@ class RegisterPage extends StatelessWidget {
                                   'Code sent to phone number ${phoneController.text}'),
                             ),
                           );
-                          final res = await showDialog(
+                         await showDialog(
                             context: context,
                             builder: (context) {
                               return CodeConfirmDialog(
-                                phoneNumber: phoneController.text,
-                              );
+                                  phoneNumber: phoneController.text,
+                                  onDoneEditing: (res) async {
+                                    try {
+                                      final credential =
+                                          PhoneAuthProvider.credential(
+                                        verificationId: verificationId,
+                                        smsCode: res,
+                                      );
+                                      await FirebaseAuth.instance
+                                          .signInWithCredential(
+                                        credential,
+                                      );
+                                      cubit.signUpWithEmailAndPassword(
+                                        emailController.text,
+                                        phoneController.text,
+                                        passwordController.text,
+                                      );
+                                    } on FirebaseAuthException catch (e) {
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog( 
+                                        // ignore: use_build_context_synchronously
+                                        context: context,
+                                        dialogType: DialogType.error,
+                                        animType: AnimType.bottomSlide,
+                                        title: 'Error',
+                                        desc: e.message!,
+                                        btnCancelOnPress: () {},
+                                        btnCancelText: 'Close',
+                                      ).show();                                    } catch (e) {
+                                      // ignore: use_build_context_synchronously
+                                      AwesomeDialog(
+                                        // ignore: use_build_context_synchronously
+                                        context: context,
+                                        dialogType: DialogType.error,
+                                        animType: AnimType.bottomSlide,
+                                        title: 'Error',
+                                        desc: e.toString(),
+                                        btnCancelOnPress: () {},
+                                        btnCancelText: 'Close',
+                                      ).show();
+                                    }
+                                  });
                             },
                           );
-                          if (res != null) {
-                            try {
-                              final credential = PhoneAuthProvider.credential(
-                                verificationId: verificationId,
-                                smsCode: res,
-                              );
-                              await FirebaseAuth.instance.signInWithCredential(
-                                credential,
-                              );
-                              cubit.signUpWithEmailAndPassword(
-                                emailController.text,
-                                phoneController.text,
-                                passwordController.text,
-                              );
-                            } on FirebaseAuthException
-                            catch (e) {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text('Error: ${e.message}'),
-                                ),
-                              );
-                            }
-                            catch (e) {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Something went wrong!'),
-                                ),
-                              );
-                            }
-                          }
                         },
                         codeAutoRetrievalTimeout: (String verificationId) {},
                       );

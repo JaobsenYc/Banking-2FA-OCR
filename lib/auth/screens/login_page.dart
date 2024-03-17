@@ -1,7 +1,7 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pinput/pinput.dart';
 import 'package:safe_transfer/auth/device_type/device_type_page.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
@@ -28,12 +28,7 @@ class LoginPage extends StatelessWidget {
         final phoneNumber = FirebaseAuth.instance.currentUser?.phoneNumber;
         await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber!,
-          verificationCompleted: (PhoneAuthCredential credential) async {
-            await FirebaseAuth.instance.signInWithCredential(credential);
-            authCubit.checkFirstTimeLogin(
-                FirebaseAuth.instance.currentUser?.uid, credential);
-            FirebaseAuth.instance.signOut();
-          },
+          verificationCompleted: (PhoneAuthCredential credential) async {},
           verificationFailed: (FirebaseAuthException e) {
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
@@ -48,24 +43,55 @@ class LoginPage extends StatelessWidget {
                 content: Text('Code sent to phone number $phoneNumber'),
               ),
             );
-            final res = await showDialog(
+            await showDialog(
               context: context,
               builder: (context) {
-                return  CodeConfirmDialog(
+                return CodeConfirmDialog(
                   phoneNumber: phoneNumber,
+                  onDoneEditing: (res) async {
+                    try {
+                      final credential = PhoneAuthProvider.credential(
+                        verificationId: verificationId,
+                        smsCode: res,
+                      );
+                      await FirebaseAuth.instance
+                          .signInWithCredential(credential);
+                      authCubit.checkFirstTimeLogin(
+                        FirebaseAuth.instance.currentUser?.uid,
+                        credential,
+                      );
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                      FirebaseAuth.instance.signOut();
+                    } on FirebaseAuthException catch (e) {
+                      // ignore: use_build_context_synchronously
+                      AwesomeDialog(
+                        // ignore: use_build_context_synchronously
+                        context: context,
+                        dialogType: DialogType.error,
+                        animType: AnimType.bottomSlide,
+                        title: 'Error',
+                        desc: e.message!,
+                        btnCancelOnPress: () {},
+                        btnCancelText: 'Close',
+                      ).show();
+                    } catch (e) {
+                      // ignore: use_build_context_synchronously
+                      AwesomeDialog(
+                        // ignore: use_build_context_synchronously
+                        context: context,
+                        dialogType: DialogType.error,
+                        animType: AnimType.bottomSlide,
+                        title: 'Error',
+                        desc: e.toString(),
+                        btnCancelOnPress: () {},
+                        btnCancelText: 'Close',
+                      ).show();
+                    }
+                  },
                 );
               },
             );
-            if (res != null) {
-              final credential = PhoneAuthProvider.credential(
-                verificationId: verificationId,
-                smsCode: res,
-              );
-              await FirebaseAuth.instance.signInWithCredential(credential);
-              authCubit.checkFirstTimeLogin(
-                  FirebaseAuth.instance.currentUser?.uid, credential);
-              FirebaseAuth.instance.signOut();
-            }
           },
           codeAutoRetrievalTimeout: (String verificationId) {},
         );
@@ -144,4 +170,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-

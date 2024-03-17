@@ -3,7 +3,8 @@ import 'package:pinput/pinput.dart';
 
 class CodeConfirmDialog extends StatelessWidget {
   final String phoneNumber;
-  const CodeConfirmDialog({super.key, required this.phoneNumber});
+  final void Function(String) onDoneEditing;
+  const CodeConfirmDialog({super.key, required this.phoneNumber, required this.onDoneEditing});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class CodeConfirmDialog extends StatelessWidget {
             Pinput(
               length: 6,
               onCompleted: (value) {
-                Navigator.pop(context, value);
+                onDoneEditing(value);
               },
             ),
             const SizedBox(height: 15.0),
