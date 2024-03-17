@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pinput/pinput.dart';
 import 'package:safe_transfer/auth/device_type/device_type_page.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
+import 'package:safe_transfer/auth/screens/pin_put_dialog.dart';
 import 'package:safe_transfer/utils/functions.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';
@@ -20,13 +23,62 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authCubit = context.read<AuthCubit>();
     return AuthScaffold(
-      onAuthSuccess: () {
-        authCubit.checkFirstTimeLogin();
+      onAuthSuccess: () async {
+        FirebaseAuth.instance.signOut();
+        final phoneNumber = FirebaseAuth.instance.currentUser?.phoneNumber;
+        await FirebaseAuth.instance.verifyPhoneNumber(
+          phoneNumber: phoneNumber!,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await FirebaseAuth.instance.signInWithCredential(credential);
+            authCubit.checkFirstTimeLogin(
+                FirebaseAuth.instance.currentUser?.uid, credential);
+            FirebaseAuth.instance.signOut();
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Phone number verification failed'),
+              ),
+            );
+          },
+          codeSent: (String verificationId, int? resendToken) async {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Code sent to phone number $phoneNumber'),
+              ),
+            );
+            final res = await showDialog(
+              context: context,
+              builder: (context) {
+                return  CodeConfirmDialog(
+                  phoneNumber: phoneNumber,
+                );
+              },
+            );
+            if (res != null) {
+              final credential = PhoneAuthProvider.credential(
+                verificationId: verificationId,
+                smsCode: res,
+              );
+              await FirebaseAuth.instance.signInWithCredential(credential);
+              authCubit.checkFirstTimeLogin(
+                  FirebaseAuth.instance.currentUser?.uid, credential);
+              FirebaseAuth.instance.signOut();
+            }
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {},
+        );
+        return;
       },
-      onAuthUserLogin: (bool? isPrimaryDevice) {
+      onAuthUserLogin:
+          (bool? isPrimaryDevice, PhoneAuthCredential phoneAuthCredential) {
         pushReplacement(
           context,
-          DeviceTypePage(isPrimaryDevice: isPrimaryDevice),
+          DeviceTypePage(
+            isPrimaryDevice: isPrimaryDevice,
+            phoneAuthCredential: phoneAuthCredential,
+          ),
         );
       },
       child: Scaffold(
@@ -92,3 +144,4 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
+

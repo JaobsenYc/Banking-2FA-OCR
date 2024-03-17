@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
@@ -6,7 +7,8 @@ import 'package:safe_transfer/widgets/custom_button.dart';
 
 class DeviceTypePage extends StatefulWidget {
   final bool? isPrimaryDevice;
-  const DeviceTypePage({super.key, required this.isPrimaryDevice});
+  final PhoneAuthCredential phoneAuthCredential;
+  const DeviceTypePage({super.key, required this.isPrimaryDevice,required this.phoneAuthCredential});
 
   @override
   State<DeviceTypePage> createState() => _DeviceTypePageState();
@@ -127,6 +129,7 @@ class _DeviceTypePageState extends State<DeviceTypePage> {
                     onPressed: () async {
                       authCubit.handleUserData(
                         selectedDeviceType == 0,
+                        widget.phoneAuthCredential,
                       );
                     },
                   ),

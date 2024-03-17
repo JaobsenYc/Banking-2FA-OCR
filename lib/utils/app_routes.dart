@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:safe_transfer/auth/screens/email_verification_code.dart';
 import 'package:safe_transfer/auth/screens/login_page.dart';
 import 'package:safe_transfer/auth/screens/register_page.dart';
 import 'package:safe_transfer/home_page.dart';
@@ -12,7 +11,7 @@ class AppRoutes {
   static const String login = '/sign-in';
   static const String register = '/sign-up';
   static const String profile = '/profile';
-  static const String emailVerification = '/email-verification';
+  static const String phoneVerification = '/phone-verification';
 
   static String initialRoute =
       FirebaseAuth.instance.currentUser == null ? login : home;
@@ -47,9 +46,6 @@ class AppRoutes {
           PrimaryDeviceSwitch(),
         ],
       );
-    },
-    emailVerification: (context) {
-      return const EmailVerification();
     },
   };
 }

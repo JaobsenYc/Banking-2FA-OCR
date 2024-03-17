@@ -27,29 +27,28 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-
   // check if user is first time login
-  void checkFirstTimeLogin() async {
+  void checkFirstTimeLogin(String? id, PhoneAuthCredential authCred) async {
     emit(AuthLoading());
     final userData = await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(id)
         .get();
     if (userData.exists) {
       isPrimaryDevice = userData.get('primaryDeviceId') == deviceInfo.deviceId;
-      emit(AuthUserLogin(isPrimaryDevice));
+      emit(AuthUserLogin(isPrimaryDevice, authCred));
     } else {
-      emit(AuthUserLogin(null));
+      emit(AuthUserLogin(null, authCred));
     }
   }
 
-  void signUpWithEmailAndPassword(String email, String password) async {
+  void signUpWithEmailAndPassword(
+      String email, String phone, String password) async {
     emit(AuthLoading());
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await FirebaseAuth.instance.currentUser?.linkWithCredential(
+          EmailAuthProvider.credential(email: email, password: password));
+      await FirebaseAuth.instance.signOut();
       emit(Authenticated());
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message.toString()));
@@ -62,12 +61,13 @@ class AuthCubit extends Cubit<AuthState> {
   // account Number ( Random 8 digit number to 10 digit number) must be unique
   // balance (Random number between 1000 and 10000)
   // uid from firebase auth
-  void handleUserData(bool isPrimaryDevice) async {
+  void handleUserData(bool isPrimaryDevice, PhoneAuthCredential authCred) async {
     try {
       emit(AuthLoading());
+      await FirebaseAuth.instance.signInWithCredential(authCred);
       final userDoc = FirebaseFirestore.instance
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid);
+          .doc(FirebaseAuth.instance.currentUser?.uid);
       final userData = await userDoc.get();
       if (userData.exists) {
         if (isPrimaryDevice) {

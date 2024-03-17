@@ -21,9 +21,7 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 40.0),
               UserHeader(),
               SizedBox(height: 24.0),
-              AccountCard(
-                showQuickServices: true,
-              ),
+              AccountCard(showQuickServices: true),
               SizedBox(height: 20.0),
               Transaction(),
             ],

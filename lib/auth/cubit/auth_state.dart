@@ -36,6 +36,7 @@ final class AuthSignedOutUnauthenticated extends AuthState {}
 
 final class AuthUserLogin extends AuthState {
   final bool? isPrimaryDevice;
+  final PhoneAuthCredential phoneAuthCredential;
 
-  AuthUserLogin(this.isPrimaryDevice);
+  AuthUserLogin(this.isPrimaryDevice, this.phoneAuthCredential);
 }

@@ -1,4 +1,5 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
@@ -7,7 +8,7 @@ import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 class AuthScaffold extends StatelessWidget {
   final Widget? child;
   final void Function() onAuthSuccess;
-  final void Function(bool? isPrimaryDevice)? onAuthUserLogin;
+  final void Function(bool? isPrimaryDevice, PhoneAuthCredential phoneAuthCredential)? onAuthUserLogin;
   const AuthScaffold({super.key, this.child, required this.onAuthSuccess, this.onAuthUserLogin});
 
   @override
@@ -18,7 +19,7 @@ class AuthScaffold extends StatelessWidget {
           Navigator.pop(context);
           onAuthSuccess.call();
         } else if (state is AuthUserLogin) {
-          onAuthUserLogin?.call(state.isPrimaryDevice);
+          onAuthUserLogin?.call(state.isPrimaryDevice, state.phoneAuthCredential);
         }
         else if (state is AuthError) {
           Navigator.pop(context);

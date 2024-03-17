@@ -92,8 +92,8 @@ class AccountCard extends StatelessWidget {
                                 Text(
                                   // format the MM/dd from Timestamp to String
                                   DateFormat('MM/yy').format(
-                                      (data?['expiryDate'] as Timestamp)
-                                          .toDate()),
+                                      (data?['expiryDate'] as Timestamp?)
+                                          ?.toDate() ?? DateTime.now()),
                                   style: const TextStyle(
                                     fontSize: 17.0,
                                     color: Colors.white,
