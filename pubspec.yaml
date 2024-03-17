@@ -16,7 +16,6 @@ dependencies:
   device_info_plus: ^9.1.2
   firebase_auth: ^4.17.6
   firebase_core: ^2.25.5
-  firebase_phone_auth_handler: ^1.0.8
   firebase_ui_auth: ^1.13.1
   firebase_ui_firestore: ^1.6.2
   flutter:

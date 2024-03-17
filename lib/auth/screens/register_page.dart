@@ -5,7 +5,6 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:safe_transfer/auth/cubit/auth_cubit.dart';
 import 'package:safe_transfer/auth/screens/auth_scaffold.dart';
 import 'package:safe_transfer/auth/screens/pin_put_dialog.dart';
-import 'package:safe_transfer/auth/screens/verify_phone_number_sceen.dart';
 import 'package:safe_transfer/utils/app_routes.dart';
 import 'package:safe_transfer/utils/validator_service.dart';
 import 'package:safe_transfer/widgets/custom_button.dart';

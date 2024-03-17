@@ -29,9 +29,8 @@ class AppRoutes {
     profile: (context) {
       return ProfileScreen(
         appBar: AppBar(title: const Text('Profile')),
-        providers: [EmailAuthProvider()],
         showDeleteConfirmationDialog: true,
-        showMFATile: true,
+        showMFATile: false,
         auth: FirebaseAuth.instance,
         avatarPlaceholderColor: Colors.blue,
         actions: [

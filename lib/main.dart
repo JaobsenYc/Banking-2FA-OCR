@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_phone_auth_handler/firebase_phone_auth_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,8 +30,7 @@ class MyApp extends StatelessWidget {
     );
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(),
-      child: FirebasePhoneAuthProvider(
-        child: MaterialApp(
+      child: MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.initialRoute,
           routes: AppRoutes.routes,
@@ -41,8 +39,7 @@ class MyApp extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
             useMaterial3: false,
           )
-        ),
-      ),
+        )
     );
   }
 }
