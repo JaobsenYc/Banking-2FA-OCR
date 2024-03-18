@@ -158,7 +158,7 @@ class LoginPage extends StatelessWidget {
                     backgroundColor: const Color(0x3304C6B3),
                     textColor: const Color(0xFF04C6B3),
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/sign-up');
+                      Navigator.pushNamedAndRemoveUntil(context, '/sign-up', (route) => false);
                     },
                   ),
                 ],

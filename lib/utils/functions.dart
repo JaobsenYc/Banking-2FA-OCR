@@ -16,7 +16,7 @@ Future<T?> pushNamed<T>(BuildContext context, String routeName) async{
 
 // push replacement function
 Future<T?> pushReplacement<T>(BuildContext context, Widget page) async{
-  return await Navigator.pushReplacement<T, T?>(context, MaterialPageRoute(builder: (context) => page));
+  return await Navigator.pushAndRemoveUntil<T>(context, MaterialPageRoute(builder: (context) => page), (route) => false);
 }
 
 // show loading dialog

@@ -122,7 +122,7 @@ class RegisterPage extends StatelessWidget {
                                   'Code sent to phone number ${phoneController.text}'),
                             ),
                           );
-                         await showDialog(
+                          await showDialog(
                             context: context,
                             builder: (context) {
                               return CodeConfirmDialog(
@@ -145,7 +145,7 @@ class RegisterPage extends StatelessWidget {
                                       );
                                     } on FirebaseAuthException catch (e) {
                                       // ignore: use_build_context_synchronously
-                                      AwesomeDialog( 
+                                      AwesomeDialog(
                                         // ignore: use_build_context_synchronously
                                         context: context,
                                         dialogType: DialogType.error,
@@ -154,7 +154,8 @@ class RegisterPage extends StatelessWidget {
                                         desc: e.message!,
                                         btnCancelOnPress: () {},
                                         btnCancelText: 'Close',
-                                      ).show();                                    } catch (e) {
+                                      ).show();
+                                    } catch (e) {
                                       // ignore: use_build_context_synchronously
                                       AwesomeDialog(
                                         // ignore: use_build_context_synchronously
@@ -174,6 +175,27 @@ class RegisterPage extends StatelessWidget {
                         codeAutoRetrievalTimeout: (String verificationId) {},
                       );
                     },
+                  ),
+
+                  // back to login page
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Already have an account? '),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
+                        },
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

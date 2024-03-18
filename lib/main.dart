@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
-            useMaterial3: false,
+            useMaterial3: true,
           )
         )
     );
