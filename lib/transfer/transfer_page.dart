@@ -139,7 +139,7 @@ class TransferPage extends StatelessWidget {
                                               accountNumberController.text,
                                           amount: double.parse(
                                               amountController.text),
-                                          balance: balance,
+                                          balance: balance, context: context,
                                         );
                                   }
                                 },

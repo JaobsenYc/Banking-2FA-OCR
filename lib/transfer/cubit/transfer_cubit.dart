@@ -1,9 +1,11 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_transfer/data/transfer_data.dart';
+import 'package:safe_transfer/widgets/custom_button.dart';
 
 part 'transfer_state.dart';
 
@@ -16,16 +18,68 @@ class TransferCubit extends Cubit<TransferState> {
     required String accountNumber,
     required double amount,
     required double balance,
+    required BuildContext context,
+  }) async {
+    if (balance < amount) {
+      emit(TransferError(message: 'Insufficient funds'));
+      return;
+    }
+
+    if (await checkTransferNotExist(accountNumber)) {
+      AwesomeDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        dialogType: DialogType.warning,
+        animType: AnimType.bottomSlide,
+        title: 'Fraud Alert',
+        showCloseIcon: false,
+        //btnCancel:  const SizedBox(),
+        titleTextStyle: const TextStyle(
+          color: Colors.blueGrey,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        desc:
+            "Don't fall victim to a scam. Criminals pretend to be people you trust, like a company you'd pay bills to, HSBC or even the police.HSBC will never ask you to move money, but criminals will.",
+        btnOk: CustomButton(
+          text: 'Save',
+          onPressed: () {
+            Navigator.of(context).pop();
+            _createTransfer(
+              payeeFullName: payeeFullName,
+              sortCode: sortCode,
+              accountNumber: accountNumber,
+              amount: amount,
+              balance: balance,
+            );
+          },
+        ),
+      ).show();
+    } else {
+      _createTransfer(
+        payeeFullName: payeeFullName,
+        sortCode: sortCode,
+        accountNumber: accountNumber,
+        amount: amount,
+        balance: balance,
+      );
+    }
+  }
+
+  void _createTransfer({
+    required String payeeFullName,
+    required String? sortCode,
+    required String accountNumber,
+    required double amount,
+    required double balance,
   }) async {
     try {
-      if (balance < amount) {
-        emit(TransferError(message: 'Insufficient funds'));
-        return;
-      }
       emit(TransferLoading());
       // generate custom document id with timestamp
       final microseconds = DateTime.now().microsecondsSinceEpoch;
-      final ref = FirebaseFirestore.instance.collection('transfers').doc(microseconds.toString());
+      final ref = FirebaseFirestore.instance
+          .collection('transfers')
+          .doc(microseconds.toString());
       final data = await _callEncryptFunction({
         'payeeFullName': payeeFullName,
         'sortCode': sortCode,
@@ -87,4 +141,13 @@ class TransferCubit extends Cubit<TransferState> {
       debugPrint("Error $e");
     }
   }
+}
+
+// function check if transfer already send ( Check account number already exist in the transfer collection)
+Future<bool> checkTransferNotExist(String accountNumber) async {
+  final snapshot = await FirebaseFirestore.instance
+      .collection('transfers')
+      .where('accountNumber', isEqualTo: accountNumber)
+      .get();
+  return snapshot.docs.isEmpty;
 }
