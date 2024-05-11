@@ -60,5 +60,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Face ID is required for authentication</string>
 </dict>
 </plist>

@@ -13,7 +13,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   deviceInfo = AppDeviceInfo();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp( const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,15 +31,15 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (context) => AuthCubit(),
       child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.initialRoute,
-          routes: AppRoutes.routes,
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            useMaterial3: true,
-          )
-        )
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppRoutes.initialRoute,
+        routes: AppRoutes.routes,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          useMaterial3: true,
+        ),
+      ),
     );
   }
 }
