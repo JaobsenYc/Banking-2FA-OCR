@@ -40,7 +40,7 @@ class TransferCubit extends Cubit<TransferState> {
           fontWeight: FontWeight.bold,
         ),
         desc:
-            "Don't fall victim to a scam. Criminals pretend to be people you trust, like a company you'd pay bills to, HSBC or even the police.HSBC will never ask you to move money, but criminals will.",
+            "Don't fall victim to a scam. Criminals pretend to be people you trust, like a company you'd pay bills to, UCL or even the police.UCL will never ask you to move money, but criminals will.",
         btnOk: CustomButton(
           text: 'Save',
           onPressed: () {
